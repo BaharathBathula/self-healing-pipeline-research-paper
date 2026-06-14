@@ -17,6 +17,7 @@ _REQUIRED_COLUMNS = {
     "injected_failure_type",
     "injected_severity",
     "failure_detected",
+    "detected_failure_category",
     "detection_correct",
     "predicted_root_cause",
     "classification_correct",
@@ -27,6 +28,8 @@ _REQUIRED_COLUMNS = {
 }
 
 _HEALTHY_LABEL = "healthy_control"
+_FRESHNESS_BOUNDARY_LABEL = "freshness_boundary_control"
+_FRESHNESS_BOUNDARY_SEVERITY = "low"
 
 
 def _coerce_boolean(series: pd.Series) -> pd.Series:
@@ -126,13 +129,62 @@ def normalize_experiment_results(
         errors="raise",
     )
 
+    freshness_boundary = (
+        normalized["injected_failure_type"].eq(
+            "freshness_violation"
+        )
+        & normalized["injected_severity"].eq(
+            _FRESHNESS_BOUNDARY_SEVERITY
+        )
+    )
+
+    normalized["is_boundary_control"] = freshness_boundary
+
+    normalized["analysis_condition"] = (
+        normalized["injected_failure_type"].astype("string")
+    )
+
+    normalized.loc[
+        freshness_boundary,
+        "analysis_condition",
+    ] = _FRESHNESS_BOUNDARY_LABEL
+
+    normalized["expected_root_cause_for_analysis"] = (
+        normalized["injected_failure_type"].astype("string")
+    )
+
+    normalized.loc[
+        freshness_boundary,
+        "expected_root_cause_for_analysis",
+    ] = _HEALTHY_LABEL
+
     normalized["is_failure_trial"] = (
-        normalized["injected_failure_type"]
+        normalized["expected_root_cause_for_analysis"]
         != _HEALTHY_LABEL
     )
 
     normalized["is_healthy_trial"] = (
         ~normalized["is_failure_trial"]
+    )
+
+    normalized["evaluation_detection_correct"] = (
+        normalized["detected_failure_category"]
+        .astype("string")
+        .eq(
+            normalized[
+                "expected_root_cause_for_analysis"
+            ]
+        )
+    )
+
+    normalized["evaluation_classification_correct"] = (
+        normalized["predicted_root_cause"]
+        .astype("string")
+        .eq(
+            normalized[
+                "expected_root_cause_for_analysis"
+            ]
+        )
     )
 
     normalized["false_positive"] = (
@@ -264,8 +316,16 @@ def summarize_overall(
         data["is_failure_trial"]
     ]
 
-    healthy_trials = data.loc[
+    non_failure_trials = data.loc[
         data["is_healthy_trial"]
+    ]
+
+    healthy_control_trials = data.loc[
+        data["analysis_condition"] == _HEALTHY_LABEL
+    ]
+
+    boundary_control_trials = data.loc[
+        data["is_boundary_control"]
     ]
 
     directly_executed = failure_trials.loc[
@@ -279,7 +339,11 @@ def summarize_overall(
     row: dict[str, object] = {
         "total_trials": len(data),
         "failure_trials": len(failure_trials),
-        "healthy_trials": len(healthy_trials),
+        "healthy_trials": len(healthy_control_trials),
+        "boundary_control_trials": len(
+            boundary_control_trials
+        ),
+        "non_failure_trials": len(non_failure_trials),
         "experiment_domains": int(
             data["experiment_domain"].nunique()
         ),
@@ -301,14 +365,14 @@ def summarize_overall(
 
     row.update(
         _proportion_metrics(
-            data["detection_correct"],
+            data["evaluation_detection_correct"],
             prefix="detection_accuracy",
         )
     )
 
     row.update(
         _proportion_metrics(
-            data["classification_correct"],
+            data["evaluation_classification_correct"],
             prefix="classification_accuracy",
         )
     )
@@ -335,7 +399,7 @@ def summarize_overall(
     )
 
     false_positive_count = int(
-        healthy_trials["false_positive"].sum()
+        non_failure_trials["false_positive"].sum()
     )
 
     false_negative_count = int(
@@ -344,8 +408,8 @@ def summarize_overall(
 
     row["false_positive_count"] = false_positive_count
     row["false_positive_rate"] = (
-        false_positive_count / len(healthy_trials)
-        if len(healthy_trials)
+        false_positive_count / len(non_failure_trials)
+        if len(non_failure_trials)
         else float("nan")
     )
 
@@ -385,6 +449,9 @@ def summarize_by_scenario(
             "experiment_domain": domain,
             "injected_failure_type": failure_type,
             "injected_severity": severity,
+            "analysis_condition": str(
+                group["analysis_condition"].iloc[0]
+            ),
             "trials": len(group),
             "failures_detected": int(
                 group["failure_detected"].sum()
@@ -418,14 +485,14 @@ def summarize_by_scenario(
 
         row.update(
             _proportion_metrics(
-                group["detection_correct"],
+                group["evaluation_detection_correct"],
                 prefix="detection_accuracy",
             )
         )
 
         row.update(
             _proportion_metrics(
-                group["classification_correct"],
+                group["evaluation_classification_correct"],
                 prefix="classification_accuracy",
             )
         )
@@ -450,7 +517,7 @@ def classification_confusion_matrix(
     data = normalize_experiment_results(results)
 
     confusion = pd.crosstab(
-        data["injected_failure_type"],
+        data["expected_root_cause_for_analysis"],
         data["predicted_root_cause"],
         rownames=["expected_root_cause"],
         colnames=["predicted_root_cause"],
