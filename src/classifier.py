@@ -42,19 +42,10 @@ def _normalize_scores(
 def classify_root_cause(
     detection: DetectionResult,
 ) -> ClassificationResult:
-    """Classify the probable root cause using detector evidence.
-
-    The classifier is deterministic and explainable. It assigns evidence
-    weights to candidate causes and returns the strongest supported cause.
-
-    Args:
-        detection: Failure-detector output.
-
-    Returns:
-        Root-cause classification result.
-    """
+    """Classify the probable root cause using detector evidence."""
 
     signals = detection.triggering_signals
+
     scores: dict[str, float] = {
         "schema_drift": 0.0,
         "missing_value_spike": 0.0,
@@ -62,6 +53,8 @@ def classify_root_cause(
         "freshness_violation": 0.0,
         "volume_anomaly": 0.0,
         "source_failure": 0.0,
+        "transformation_logic_error": 0.0,
+        "output_artifact_corruption": 0.0,
         "unknown_failure": 0.0,
         "healthy_control": 0.0,
     }
@@ -176,6 +169,73 @@ def classify_root_cause(
         supporting_evidence["volume_deviation_rate"] = (
             volume_deviation
         )
+
+    transformation_error_rate = float(
+        signals.get(
+            "transformation_error_rate",
+            0.0,
+        )
+    )
+
+    transformation_error_count = int(
+        signals.get(
+            "transformation_error_count",
+            0,
+        )
+    )
+
+    if transformation_error_rate > 0:
+        scores["transformation_logic_error"] += min(
+            0.99,
+            0.80 + transformation_error_rate,
+        )
+
+        supporting_evidence[
+            "transformation_error_rate"
+        ] = transformation_error_rate
+
+        supporting_evidence[
+            "transformation_error_count"
+        ] = transformation_error_count
+
+        if "validated_rule" in signals:
+            supporting_evidence["validated_rule"] = signals[
+                "validated_rule"
+            ]
+
+    checksum_match = signals.get("checksum_match")
+    integrity_error_type = signals.get(
+        "integrity_error_type"
+    )
+
+    if checksum_match is False:
+        scores["output_artifact_corruption"] += 0.99
+        supporting_evidence["checksum_match"] = False
+
+        for key in (
+            "artifact_path",
+            "expected_sha256",
+            "observed_sha256",
+            "artifact_size_bytes",
+        ):
+            if key in signals:
+                supporting_evidence[key] = signals[key]
+
+    if integrity_error_type:
+        scores["output_artifact_corruption"] += 0.99
+        supporting_evidence[
+            "integrity_error_type"
+        ] = integrity_error_type
+
+        if "integrity_error_message" in signals:
+            supporting_evidence[
+                "integrity_error_message"
+            ] = signals["integrity_error_message"]
+
+        if "artifact_path" in signals:
+            supporting_evidence["artifact_path"] = signals[
+                "artifact_path"
+            ]
 
     detected_category = detection.detected_failure_category
 
