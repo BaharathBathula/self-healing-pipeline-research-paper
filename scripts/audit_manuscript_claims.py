@@ -4,10 +4,12 @@ import sys
 
 METHODOLOGY = Path("manuscript/03_methodology.md")
 RESULTS = Path("manuscript/04_experimental_results.md")
+DISCUSSION = Path("manuscript/05_discussion.md")
 
 documents = {
     "methodology": METHODOLOGY.read_text(encoding="utf-8"),
     "results": RESULTS.read_text(encoding="utf-8"),
+    "discussion": DISCUSSION.read_text(encoding="utf-8"),
 }
 
 combined = "\n".join(documents.values())
@@ -92,6 +94,12 @@ results_sections = re.findall(
     flags=re.MULTILINE,
 )
 
+discussion_sections = re.findall(
+    r"^## 5\.\d+ ",
+    documents["discussion"],
+    flags=re.MULTILINE,
+)
+
 if len(methodology_sections) != 10:
     failures.append(
         f"METHODOLOGY SECTION COUNT: {len(methodology_sections)}"
@@ -102,7 +110,12 @@ if len(results_sections) != 8:
         f"RESULTS SECTION COUNT: {len(results_sections)}"
     )
 
-total_checks = len(required_claims) + len(forbidden_claims) + 2
+if len(discussion_sections) != 7:
+    failures.append(
+        f"DISCUSSION SECTION COUNT: {len(discussion_sections)}"
+    )
+
+total_checks = len(required_claims) + len(forbidden_claims) + 3
 
 if failures:
     print(f"Evidence audit: FAILED ({len(failures)} issues)")
