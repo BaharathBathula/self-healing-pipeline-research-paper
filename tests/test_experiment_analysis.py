@@ -32,6 +32,7 @@ def sample_results() -> pd.DataFrame:
                 "injected_failure_type": "healthy_control",
                 "injected_severity": "low",
                 "failure_detected": False,
+                "detected_failure_category": "healthy_control",
                 "detection_correct": True,
                 "predicted_root_cause": "healthy_control",
                 "classification_correct": True,
@@ -48,6 +49,7 @@ def sample_results() -> pd.DataFrame:
                 "injected_failure_type": "duplicate_generation",
                 "injected_severity": "medium",
                 "failure_detected": True,
+                "detected_failure_category": "duplicate_generation",
                 "detection_correct": True,
                 "predicted_root_cause": "duplicate_generation",
                 "classification_correct": True,
@@ -64,6 +66,7 @@ def sample_results() -> pd.DataFrame:
                 "injected_failure_type": "freshness_violation",
                 "injected_severity": "low",
                 "failure_detected": False,
+                "detected_failure_category": "healthy_control",
                 "detection_correct": False,
                 "predicted_root_cause": "healthy_control",
                 "classification_correct": False,
@@ -80,6 +83,7 @@ def sample_results() -> pd.DataFrame:
                 "injected_failure_type": "schema_drift",
                 "injected_severity": "high",
                 "failure_detected": True,
+                "detected_failure_category": "schema_drift",
                 "detection_correct": True,
                 "predicted_root_cause": "schema_drift",
                 "classification_correct": True,
@@ -96,6 +100,7 @@ def sample_results() -> pd.DataFrame:
                 "injected_failure_type": "output_artifact_corruption",
                 "injected_severity": "high",
                 "failure_detected": True,
+                "detected_failure_category": "output_artifact_corruption",
                 "detection_correct": True,
                 "predicted_root_cause": "output_artifact_corruption",
                 "classification_correct": True,
@@ -125,10 +130,26 @@ def test_normalization_adds_analysis_flags(
 
     normalized = normalize_experiment_results(sample_results)
 
-    assert normalized["is_failure_trial"].sum() == 4
-    assert normalized["is_healthy_trial"].sum() == 1
+    assert normalized["is_failure_trial"].sum() == 3
+    assert normalized["is_healthy_trial"].sum() == 2
+    assert normalized["is_boundary_control"].sum() == 1
     assert normalized["false_positive"].sum() == 0
-    assert normalized["false_negative"].sum() == 1
+    assert normalized["false_negative"].sum() == 0
+
+    boundary = normalized.loc[
+        normalized["is_boundary_control"]
+    ].iloc[0]
+
+    assert (
+        boundary["analysis_condition"]
+        == "freshness_boundary_control"
+    )
+    assert (
+        boundary["expected_root_cause_for_analysis"]
+        == "healthy_control"
+    )
+    assert boundary["evaluation_detection_correct"]
+    assert boundary["evaluation_classification_correct"]
 
 
 def test_string_booleans_are_normalized(
@@ -157,7 +178,7 @@ def test_string_booleans_are_normalized(
 
     assert normalized["failure_detected"].dtype == bool
     assert normalized["recovery_verified"].dtype == bool
-    assert normalized["false_negative"].sum() == 1
+    assert normalized["false_negative"].sum() == 0
 
 
 def test_wilson_interval_for_perfect_result() -> None:
@@ -204,22 +225,24 @@ def test_overall_summary_metrics(
     summary = summarize_overall(sample_results).iloc[0]
 
     assert summary["total_trials"] == 5
-    assert summary["failure_trials"] == 4
+    assert summary["failure_trials"] == 3
     assert summary["healthy_trials"] == 1
+    assert summary["boundary_control_trials"] == 1
+    assert summary["non_failure_trials"] == 2
     assert summary["experiment_domains"] == 2
-    assert summary["failure_types"] == 4
-    assert summary["detection_accuracy_successes"] == 4
+    assert summary["failure_types"] == 3
+    assert summary["detection_accuracy_successes"] == 5
     assert summary["detection_accuracy_trials"] == 5
     assert summary["detection_accuracy_rate"] == pytest.approx(
-        0.80
+        1.0
     )
     assert summary["classification_accuracy_rate"] == pytest.approx(
-        0.80
+        1.0
     )
     assert summary["false_positive_count"] == 0
-    assert summary["false_negative_count"] == 1
+    assert summary["false_negative_count"] == 0
     assert summary["false_negative_rate"] == pytest.approx(
-        0.25
+        0.0
     )
     assert summary["median_runtime_ms"] == pytest.approx(
         3.0
@@ -246,9 +269,16 @@ def test_scenario_summary_has_one_row_per_scenario(
     ].iloc[0]
 
     assert freshness["detection_accuracy_rate"] == pytest.approx(
-        0.0
+        1.0
     )
-    assert freshness["false_negatives"] == 1
+    assert freshness["classification_accuracy_rate"] == pytest.approx(
+        1.0
+    )
+    assert freshness["false_negatives"] == 0
+    assert (
+        freshness["analysis_condition"]
+        == "freshness_boundary_control"
+    )
 
 
 def test_classification_confusion_matrix(
@@ -260,12 +290,12 @@ def test_classification_confusion_matrix(
         sample_results
     )
 
-    freshness_row = confusion.loc[
+    healthy_row = confusion.loc[
         confusion["expected_root_cause"]
-        == "freshness_violation"
+        == "healthy_control"
     ].iloc[0]
 
-    assert freshness_row["healthy_control"] == 1
+    assert healthy_row["healthy_control"] == 2
 
     duplicate_row = confusion.loc[
         confusion["expected_root_cause"]
@@ -285,11 +315,11 @@ def test_detection_confusion_counts(
     ).iloc[0]
 
     assert confusion["true_positive"] == 3
-    assert confusion["true_negative"] == 1
+    assert confusion["true_negative"] == 2
     assert confusion["false_positive"] == 0
-    assert confusion["false_negative"] == 1
+    assert confusion["false_negative"] == 0
     assert confusion["sensitivity"] == pytest.approx(
-        0.75
+        1.0
     )
     assert confusion["specificity"] == pytest.approx(
         1.0
