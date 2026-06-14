@@ -60,3 +60,4 @@ data/raw/*
 !figures/.gitkeep
 experiments/smoke_results/
 experiments/smoke_artifacts/
+experiments/artifact_trials/
