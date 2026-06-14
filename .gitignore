@@ -58,3 +58,5 @@ data/raw/*
 !telemetry/.gitkeep
 !incident_evidence/.gitkeep
 !figures/.gitkeep
+experiments/smoke_results/
+experiments/smoke_artifacts/
