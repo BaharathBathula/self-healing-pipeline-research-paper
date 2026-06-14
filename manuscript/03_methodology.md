@@ -57,6 +57,22 @@ Failure injections were deterministic for a given experiment seed and repetition
 
 The study evaluated one implemented policy-constrained system. Alert-only monitoring and static-rule remediation were retained as conceptual reference points but were not implemented as quantitative experimental baselines.
 
+The implemented severity mappings were scenario-specific:
+
+| Failure scenario           | Low severity                                                    | Medium severity                          | High severity                                         |
+| -------------------------- | --------------------------------------------------------------- | ---------------------------------------- | ----------------------------------------------------- |
+| Schema drift               | Rename `source_system` to `source_system_v2`                    | Remove the required `customer_id` column | Convert all `quantity` values to incompatible strings |
+| Missing-value spike        | Replace 10% of `customer_id` values with nulls                  | Replace 25% with nulls                   | Replace 50% with nulls                                |
+| Duplicate generation       | Append duplicate records equal to 10% of the baseline row count | Append 25%                               | Append 50%                                            |
+| Freshness violation        | Delay 10% of timestamps by 30 minutes                           | Delay 25% by 180 minutes                 | Delay 50% by 1,440 minutes                            |
+| Volume anomaly             | Retain 50% of the baseline records                              | Retain 20%                               | Retain 10%                                            |
+| Transformation logic error | Affect 5% of records and inflate local totals by 5%             | Affect 20% and reduce totals by 25%      | Affect 50% and convert totals to negative values      |
+| Output-artifact corruption | Retain 95% of the artifact bytes                                | Retain 70%                               | Retain 30%                                            |
+
+The reported volume experiments used only the decreasing-volume injection path. Although the implementation also supported volume increases, that path was not included in the completed experimental matrix.
+
+Source-failure trials used the same simulated timeout exception at all three injected-severity labels. Therefore, low, medium, and high source-failure trials represented repeated policy-routing strata rather than distinct technical failure intensities. Results were not interpreted as evidence of severity-sensitive behavior for source failures.
+
 
 ## 3.5 Detection, Classification, and Policy Control
 The detector used deterministic rules over observed dataframe state, baseline state, raised exceptions, transformation-integrity signals, and output-artifact checksums. The configured dataframe thresholds were a missing-value rate of 5%, a duplicate rate of 1%, a volume-deviation rate of 30%, and a freshness delay of 60 minutes.
