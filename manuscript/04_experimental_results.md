@@ -90,6 +90,10 @@ Schema-drift and volume-anomaly trials recorded no automatic execution or verifi
 
 The 30 low-severity freshness boundary controls remained healthy under the configured threshold and therefore recorded successful non-failure handling rather than failure recovery. Scenario-level recovery values should therefore be interpreted in conjunction with each category’s authorized policy path and available verification mechanism, not as a single measure of detector quality.
 
+The low-, medium-, and high-severity labels for source-failure trials did not represent different timeout durations or different upstream failure mechanisms. All three strata used the same simulated timeout exception. The severity labels therefore functioned only as repeated experimental strata for policy-routing consistency, and no severity-dependent conclusion was drawn for source failures.
+
+The volume-anomaly results were limited to decreasing-volume conditions. The experiment evaluated retained-volume levels of 50%, 20%, and 10% of the baseline dataset. Although the implementation also supported increasing-volume anomalies, those cases were not included in the reported experiment and should not be inferred from the results.
+
 ## 4.7 Freshness Boundary-Control Analysis
 The freshness scenarios produced two analytically distinct outcomes because the detector threshold was fixed at 60 minutes.
 
