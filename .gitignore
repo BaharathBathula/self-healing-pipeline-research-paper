@@ -47,6 +47,8 @@ experiments/derived_results/*
 telemetry/*
 incident_evidence/*
 figures/*
+data/raw/*
+!data/raw/.gitkeep
 
 # Preserve folder structure
 
