@@ -1,10 +1,13 @@
 """Deterministic execution of policy-authorized remediation actions."""
 
 from dataclasses import asdict, dataclass, field
+from pathlib import Path
+from shutil import copy2
 from typing import Any
 
 import pandas as pd
 
+from src.output_failure import calculate_sha256
 from src.pipeline import REQUIRED_COLUMNS
 from src.policy_engine import PolicyDecision
 
@@ -170,16 +173,192 @@ def _execute_null_quarantine(
     )
 
 
+def _execute_recompute_derived_totals(
+    dataframe: pd.DataFrame,
+    parameters: dict[str, Any],
+) -> RemediationExecutionResult:
+    """Recompute a derived total from trusted source columns."""
+
+    target_column = str(
+        parameters.get(
+            "target_column",
+            "order_total_local",
+        )
+    )
+
+    source_columns = list(
+        parameters.get(
+            "source_columns",
+            ["quantity", "unit_price"],
+        )
+    )
+
+    rounding_precision = int(
+        parameters.get(
+            "rounding_precision",
+            2,
+        )
+    )
+
+    required_columns = set(
+        source_columns + [target_column]
+    )
+
+    missing_columns = sorted(
+        required_columns.difference(
+            dataframe.columns
+        )
+    )
+
+    if missing_columns:
+        raise RemediationExecutionError(
+            "Cannot recompute derived totals because columns are missing: "
+            + ", ".join(missing_columns)
+        )
+
+    if len(source_columns) != 2:
+        raise RemediationExecutionError(
+            "Derived-total remediation requires exactly two source columns"
+        )
+
+    repaired = dataframe.copy(deep=True)
+
+    first_source = pd.to_numeric(
+        repaired[source_columns[0]],
+        errors="coerce",
+    )
+
+    second_source = pd.to_numeric(
+        repaired[source_columns[1]],
+        errors="coerce",
+    )
+
+    if first_source.isna().any() or second_source.isna().any():
+        raise RemediationExecutionError(
+            "Cannot recompute derived totals from null or non-numeric source values"
+        )
+
+    original_values = pd.to_numeric(
+        repaired[target_column],
+        errors="coerce",
+    )
+
+    recomputed_values = (
+        first_source * second_source
+    ).round(rounding_precision)
+
+    changed_mask = (
+        original_values.isna()
+        | original_values.ne(recomputed_values)
+    )
+
+    repaired.loc[
+        :,
+        target_column,
+    ] = recomputed_values
+
+    repaired_count = int(changed_mask.sum())
+
+    return RemediationExecutionResult(
+        action="recompute_derived_totals",
+        executed=True,
+        status="completed",
+        output_dataframe=repaired,
+        message=(
+            f"Recomputed {repaired_count} derived values "
+            f"in '{target_column}'."
+        ),
+        evidence={
+            "target_column": target_column,
+            "source_columns": source_columns,
+            "rounding_precision": rounding_precision,
+            "repaired_record_count": repaired_count,
+            "input_record_count": len(dataframe),
+            "output_record_count": len(repaired),
+        },
+    )
+
+
+def _execute_regenerate_output_artifact(
+    *,
+    dataframe: pd.DataFrame,
+    parameters: dict[str, Any],
+    artifact_source_path: Path | str | None,
+    artifact_destination_path: Path | str | None,
+) -> RemediationExecutionResult:
+    """Regenerate a corrupted artifact from a trusted source artifact."""
+
+    if artifact_source_path is None:
+        raise RemediationExecutionError(
+            "artifact_source_path is required for artifact regeneration"
+        )
+
+    if artifact_destination_path is None:
+        raise RemediationExecutionError(
+            "artifact_destination_path is required for artifact regeneration"
+        )
+
+    source = Path(artifact_source_path)
+    destination = Path(artifact_destination_path)
+
+    if not source.exists() or not source.is_file():
+        raise RemediationExecutionError(
+            f"Trusted source artifact does not exist: {source}"
+        )
+
+    destination.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    copy2(source, destination)
+
+    source_checksum = calculate_sha256(source)
+    regenerated_checksum = calculate_sha256(destination)
+
+    verification_required = bool(
+        parameters.get(
+            "verify_checksum_after_regeneration",
+            True,
+        )
+    )
+
+    checksum_verified = (
+        source_checksum == regenerated_checksum
+    )
+
+    if verification_required and not checksum_verified:
+        raise RemediationExecutionError(
+            "Regenerated artifact failed checksum verification"
+        )
+
+    return RemediationExecutionResult(
+        action="regenerate_output_artifact",
+        executed=True,
+        status="completed",
+        output_dataframe=dataframe.copy(),
+        message="Regenerated and verified the output artifact.",
+        evidence={
+            "source_artifact_path": str(source.resolve()),
+            "regenerated_artifact_path": str(
+                destination.resolve()
+            ),
+            "source_sha256": source_checksum,
+            "regenerated_sha256": regenerated_checksum,
+            "checksum_verified": checksum_verified,
+            "regenerated_size_bytes": destination.stat().st_size,
+        },
+    )
+
+
 def execute_remediation(
     *,
     decision: PolicyDecision,
     dataframe: pd.DataFrame,
+    artifact_source_path: Path | str | None = None,
+    artifact_destination_path: Path | str | None = None,
 ) -> RemediationExecutionResult:
-    """Execute a remediation action under policy constraints.
-
-    The executor never performs real network retries or sleeps. Retry
-    policies produce a deterministic schedule for the experiment runner.
-    """
+    """Execute a remediation action under policy constraints."""
 
     working_dataframe = dataframe.copy()
 
@@ -234,6 +413,20 @@ def execute_remediation(
     if decision.action == "quarantine_invalid_rows":
         return _execute_null_quarantine(
             working_dataframe
+        )
+
+    if decision.action == "recompute_derived_totals":
+        return _execute_recompute_derived_totals(
+            working_dataframe,
+            decision.parameters,
+        )
+
+    if decision.action == "regenerate_output_artifact":
+        return _execute_regenerate_output_artifact(
+            dataframe=working_dataframe,
+            parameters=decision.parameters,
+            artifact_source_path=artifact_source_path,
+            artifact_destination_path=artifact_destination_path,
         )
 
     if decision.action == "retry_with_exponential_backoff":
