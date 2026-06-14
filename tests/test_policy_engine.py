@@ -34,8 +34,8 @@ def test_policy_configuration_loads() -> None:
 
     configuration = load_policy_configuration()
 
-    assert configuration["version"] == "1.0"
-    assert len(configuration["policies"]) == 8
+    assert configuration["version"] == "1.1"
+    assert len(configuration["policies"]) == 10
 
 
 @pytest.mark.parametrize(
@@ -295,3 +295,35 @@ def test_missing_policy_fields_raise_error(
             severity="medium",
             policy_path=invalid_path,
         )
+
+
+
+@pytest.mark.parametrize(
+    ("root_cause", "expected_action"),
+    [
+        (
+            "transformation_logic_error",
+            "recompute_derived_totals",
+        ),
+        (
+            "output_artifact_corruption",
+            "regenerate_output_artifact",
+        ),
+    ],
+)
+def test_integrity_failure_policies_are_automatic(
+    root_cause: str,
+    expected_action: str,
+) -> None:
+    """Integrity failures must use explicit automatic policies."""
+
+    decision = evaluate_remediation_policy(
+        classification=classification(root_cause),
+        severity="high",
+    )
+
+    assert decision.root_cause == root_cause
+    assert decision.action == expected_action
+    assert decision.automatic is True
+    assert decision.requires_human_approval is False
+    assert decision.permitted is True

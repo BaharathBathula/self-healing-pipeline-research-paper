@@ -1,4 +1,4 @@
-version: "1.0"
+version: "1.1"
 
 global_constraints:
   require_human_approval_for:
@@ -82,6 +82,32 @@ policies:
     parameters:
       block_downstream_publish: true
       notify_owner: true
+
+  transformation_logic_error:
+    action: recompute_derived_totals
+    automatic: true
+    allowed_severities:
+      - low
+      - medium
+      - high
+    parameters:
+      target_column: order_total_local
+      source_columns:
+        - quantity
+        - unit_price
+      rounding_precision: 2
+      preserve_original_values: true
+
+  output_artifact_corruption:
+    action: regenerate_output_artifact
+    automatic: true
+    allowed_severities:
+      - low
+      - medium
+      - high
+    parameters:
+      verify_checksum_after_regeneration: true
+      preserve_corrupted_artifact: true
 
   unknown_failure:
     action: escalate_for_manual_review
