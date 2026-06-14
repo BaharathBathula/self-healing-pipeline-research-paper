@@ -1,89 +1,95 @@
-policy_version: "0.1.0"
+version: "1.0"
 
-defaults:
-  minimum_classification_confidence: 0.85
-  maximum_affected_records: 10000
-  maximum_downstream_consumers: 3
-  rollback_required: true
-  execution_timeout_seconds: 60
+global_constraints:
+  require_human_approval_for:
+    - unknown_failure
+    - schema_drift
+  maximum_automatic_retries: 3
+  preserve_original_data: true
+  write_incident_evidence: true
 
-protected_datasets:
-  - certified_financial_output
-  - sensitive_customer_data
-
-automatic_remediation_rules:
-  schema_drift:
-    permitted_actions:
-      - apply_approved_schema_mapping
-      - quarantine_incompatible_records
-    maximum_severity: medium
-    manual_approval_required: false
-
-  missing_value_spike:
-    permitted_actions:
-      - quarantine_invalid_records
-      - use_approved_fallback_field
-    maximum_severity: medium
-    manual_approval_required: false
-
-  duplicate_generation:
-    permitted_actions:
-      - remove_duplicate_output
-      - replay_from_checkpoint
-    maximum_severity: high
-    manual_approval_required: false
-
-  freshness_violation:
-    permitted_actions:
-      - retry_source_retrieval
-      - hold_downstream_publication
-    maximum_severity: medium
-    manual_approval_required: false
-
-  volume_anomaly:
-    permitted_actions:
-      - pause_publication
-      - reconcile_source_totals
-    maximum_severity: low
-    manual_approval_required: true
-
-  transformation_failure:
-    permitted_actions:
-      - rollback_transformation_version
-      - reprocess_affected_data
-    maximum_severity: medium
-    manual_approval_required: false
+policies:
+  healthy_control:
+    action: continue_pipeline
+    automatic: true
+    allowed_severities:
+      - none
 
   source_failure:
-    permitted_actions:
-      - retry_with_backoff
-      - resume_from_checkpoint
-    maximum_severity: medium
-    manual_approval_required: false
+    action: retry_with_exponential_backoff
+    automatic: true
+    allowed_severities:
+      - low
+      - medium
+      - high
+    parameters:
+      maximum_retries: 3
+      initial_delay_seconds: 1
+      backoff_multiplier: 2
 
-  corrupted_output:
-    permitted_actions:
-      - remove_invalid_output
-      - restore_previous_valid_output
-      - reprocess_from_checkpoint
-    maximum_severity: high
-    manual_approval_required: false
+  schema_drift:
+    action: quarantine_and_alert
+    automatic: false
+    allowed_severities:
+      - low
+      - medium
+      - high
+    parameters:
+      quarantine_dataset: true
+      notify_owner: true
 
-escalation_rules:
-  - condition: classification_confidence_below_threshold
-    outcome: approval_required
+  missing_value_spike:
+    action: quarantine_invalid_rows
+    automatic: true
+    allowed_severities:
+      - low
+      - medium
+      - high
+    parameters:
+      retain_valid_rows: true
+      reject_null_required_fields: true
 
-  - condition: unknown_failure
-    outcome: approval_required
+  duplicate_generation:
+    action: deduplicate_keep_first
+    automatic: true
+    allowed_severities:
+      - low
+      - medium
+      - high
+    parameters:
+      key_columns:
+        - order_id
+      preserve_first_record: true
 
-  - condition: protected_dataset_affected
-    outcome: approval_required
+  freshness_violation:
+    action: retry_source_refresh
+    automatic: true
+    allowed_severities:
+      - low
+      - medium
+      - high
+    parameters:
+      maximum_retries: 2
+      reject_stale_records_after_failure: true
 
-  - condition: rollback_unavailable
-    outcome: denied
+  volume_anomaly:
+    action: hold_and_alert
+    automatic: false
+    allowed_severities:
+      - low
+      - medium
+      - high
+    parameters:
+      block_downstream_publish: true
+      notify_owner: true
 
-  - condition: blast_radius_exceeds_limit
-    outcome: denied
-
-  - condition: conflicting_root_causes
-    outcome: approval_required
+  unknown_failure:
+    action: escalate_for_manual_review
+    automatic: false
+    allowed_severities:
+      - low
+      - medium
+      - high
+    parameters:
+      block_downstream_publish: true
+      preserve_failure_context: true
