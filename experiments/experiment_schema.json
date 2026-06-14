@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Self-Healing Pipeline Experiment Record",
+  "type": "object",
+  "required": [
+    "experiment_id",
+    "approach",
+    "failure_category",
+    "failure_severity",
+    "trial_valid",
+    "final_status"
+  ],
+  "properties": {
+    "experiment_id": {
+      "type": "string"
+    },
+    "experiment_batch_id": {
+      "type": "string"
+    },
+    "run_number": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "approach": {
+      "type": "string",
+      "enum": [
+        "alert_only",
+        "static_rule",
+        "policy_constrained"
+      ]
+    },
+    "failure_category": {
+      "type": "string",
+      "enum": [
+        "schema_drift",
+        "missing_value_spike",
+        "duplicate_generation",
+        "freshness_violation",
+        "volume_anomaly",
+        "transformation_failure",
+        "source_failure",
+        "corrupted_output",
+        "unknown_failure",
+        "healthy_control"
+      ]
+    },
+    "failure_severity": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "none"
+      ]
+    },
+    "random_seed": {
+      "type": "integer"
+    },
+    "failure_detected": {
+      "type": "boolean"
+    },
+    "predicted_root_cause": {
+      "type": "string"
+    },
+    "classification_confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "policy_decision": {
+      "type": "string",
+      "enum": [
+        "approved",
+        "denied",
+        "approval_required",
+        "unavailable",
+        "not_applicable"
+      ]
+    },
+    "remediation_action": {
+      "type": "string"
+    },
+    "recovery_validated": {
+      "type": "boolean"
+    },
+    "rollback_required": {
+      "type": "boolean"
+    },
+    "rollback_successful": {
+      "type": "boolean"
+    },
+    "human_intervention_used": {
+      "type": "boolean"
+    },
+    "unsafe_remediation": {
+      "type": "boolean"
+    },
+    "mttd_ms": {
+      "type": "number",
+      "minimum": 0
+    },
+    "mttr_ms": {
+      "type": "number",
+      "minimum": 0
+    },
+    "trial_valid": {
+      "type": "boolean"
+    },
+    "invalid_reason": {
+      "type": "string"
+    },
+    "final_status": {
+      "type": "string",
+      "enum": [
+        "recovered",
+        "escalated",
+        "unresolved",
+        "failed",
+        "healthy"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

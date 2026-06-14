@@ -1,0 +1,58 @@
+# Python
+
+**pycache**/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+
+.venv/
+venv/
+env/
+
+# Test and coverage artifacts
+
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build artifacts
+
+build/
+dist/
+*.egg-info/
+
+# Jupyter
+
+.ipynb_checkpoints/
+
+# Environment and secrets
+
+.env
+.env.*
+!.env.example
+
+# IDE and operating system
+
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Generated research artifacts
+
+data/processed/*
+experiments/raw_results/*
+experiments/derived_results/*
+telemetry/*
+incident_evidence/*
+figures/*
+
+# Preserve folder structure
+
+!data/processed/.gitkeep
+!experiments/raw_results/.gitkeep
+!experiments/derived_results/.gitkeep
+!telemetry/.gitkeep
+!incident_evidence/.gitkeep
+!figures/.gitkeep

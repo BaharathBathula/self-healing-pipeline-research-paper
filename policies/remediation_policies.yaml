@@ -1,0 +1,89 @@
+policy_version: "0.1.0"
+
+defaults:
+  minimum_classification_confidence: 0.85
+  maximum_affected_records: 10000
+  maximum_downstream_consumers: 3
+  rollback_required: true
+  execution_timeout_seconds: 60
+
+protected_datasets:
+  - certified_financial_output
+  - sensitive_customer_data
+
+automatic_remediation_rules:
+  schema_drift:
+    permitted_actions:
+      - apply_approved_schema_mapping
+      - quarantine_incompatible_records
+    maximum_severity: medium
+    manual_approval_required: false
+
+  missing_value_spike:
+    permitted_actions:
+      - quarantine_invalid_records
+      - use_approved_fallback_field
+    maximum_severity: medium
+    manual_approval_required: false
+
+  duplicate_generation:
+    permitted_actions:
+      - remove_duplicate_output
+      - replay_from_checkpoint
+    maximum_severity: high
+    manual_approval_required: false
+
+  freshness_violation:
+    permitted_actions:
+      - retry_source_retrieval
+      - hold_downstream_publication
+    maximum_severity: medium
+    manual_approval_required: false
+
+  volume_anomaly:
+    permitted_actions:
+      - pause_publication
+      - reconcile_source_totals
+    maximum_severity: low
+    manual_approval_required: true
+
+  transformation_failure:
+    permitted_actions:
+      - rollback_transformation_version
+      - reprocess_affected_data
+    maximum_severity: medium
+    manual_approval_required: false
+
+  source_failure:
+    permitted_actions:
+      - retry_with_backoff
+      - resume_from_checkpoint
+    maximum_severity: medium
+    manual_approval_required: false
+
+  corrupted_output:
+    permitted_actions:
+      - remove_invalid_output
+      - restore_previous_valid_output
+      - reprocess_from_checkpoint
+    maximum_severity: high
+    manual_approval_required: false
+
+escalation_rules:
+  - condition: classification_confidence_below_threshold
+    outcome: approval_required
+
+  - condition: unknown_failure
+    outcome: approval_required
+
+  - condition: protected_dataset_affected
+    outcome: approval_required
+
+  - condition: rollback_unavailable
+    outcome: denied
+
+  - condition: blast_radius_exceeds_limit
+    outcome: denied
+
+  - condition: conflicting_root_causes
+    outcome: approval_required

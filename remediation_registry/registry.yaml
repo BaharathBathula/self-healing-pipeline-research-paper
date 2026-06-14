@@ -1,0 +1,223 @@
+registry_version: "0.1.0"
+
+remediations:
+apply_approved_schema_mapping:
+applicable_failures:
+- schema_drift
+risk_level: medium
+rollback_required: true
+approval_required: false
+timeout_seconds: 60
+validation_checks:
+- required_schema_present
+- record_count_reconciled
+- downstream_validation_passed
+rollback_action: restore_previous_schema_mapping
+
+quarantine_incompatible_records:
+applicable_failures:
+- schema_drift
+- missing_value_spike
+risk_level: low
+rollback_required: true
+approval_required: false
+timeout_seconds: 60
+validation_checks:
+- invalid_records_isolated
+- valid_records_preserved
+- quarantine_manifest_created
+rollback_action: restore_quarantined_records
+
+quarantine_invalid_records:
+applicable_failures:
+- missing_value_spike
+risk_level: low
+rollback_required: true
+approval_required: false
+timeout_seconds: 60
+validation_checks:
+- invalid_records_isolated
+- valid_records_processed
+- no_unsupported_imputation
+rollback_action: restore_quarantined_records
+
+use_approved_fallback_field:
+applicable_failures:
+- missing_value_spike
+risk_level: medium
+rollback_required: true
+approval_required: false
+timeout_seconds: 60
+validation_checks:
+- fallback_field_authorized
+- completeness_threshold_passed
+- business_rules_passed
+rollback_action: restore_original_field_values
+
+remove_duplicate_output:
+applicable_failures:
+- duplicate_generation
+risk_level: medium
+rollback_required: true
+approval_required: false
+timeout_seconds: 60
+validation_checks:
+- uniqueness_check_passed
+- legitimate_records_preserved
+- record_count_reconciled
+rollback_action: restore_pre_deduplication_output
+
+replay_from_checkpoint:
+applicable_failures:
+- duplicate_generation
+- source_failure
+risk_level: medium
+rollback_required: true
+approval_required: false
+timeout_seconds: 120
+validation_checks:
+- checkpoint_continuity_preserved
+- no_duplicate_records
+- output_validation_passed
+rollback_action: restore_previous_checkpoint
+
+retry_source_retrieval:
+applicable_failures:
+- freshness_violation
+- source_failure
+risk_level: low
+rollback_required: false
+approval_required: false
+timeout_seconds: 120
+validation_checks:
+- source_data_complete
+- freshness_sla_passed
+- no_duplicate_ingestion
+rollback_action: none
+
+hold_downstream_publication:
+applicable_failures:
+- freshness_violation
+- volume_anomaly
+risk_level: low
+rollback_required: false
+approval_required: false
+timeout_seconds: 30
+validation_checks:
+- downstream_output_blocked
+- stale_data_not_certified
+rollback_action: release_downstream_publication
+
+pause_publication:
+applicable_failures:
+- volume_anomaly
+risk_level: low
+rollback_required: false
+approval_required: true
+timeout_seconds: 30
+validation_checks:
+- publication_paused
+- affected_output_isolated
+rollback_action: resume_publication
+
+reconcile_source_totals:
+applicable_failures:
+- volume_anomaly
+risk_level: low
+rollback_required: false
+approval_required: true
+timeout_seconds: 120
+validation_checks:
+- source_control_totals_available
+- input_output_counts_reconciled
+rollback_action: none
+
+rollback_transformation_version:
+applicable_failures:
+- transformation_failure
+risk_level: medium
+rollback_required: true
+approval_required: false
+timeout_seconds: 90
+validation_checks:
+- previous_version_restored
+- known_answer_tests_passed
+- business_rules_passed
+rollback_action: restore_failed_transformation_version
+
+reprocess_affected_data:
+applicable_failures:
+- transformation_failure
+risk_level: medium
+rollback_required: true
+approval_required: false
+timeout_seconds: 180
+validation_checks:
+- affected_records_reprocessed
+- reconciliation_passed
+- defective_output_removed
+rollback_action: restore_pre_reprocessing_output
+
+retry_with_backoff:
+applicable_failures:
+- source_failure
+risk_level: low
+rollback_required: false
+approval_required: false
+timeout_seconds: 120
+validation_checks:
+- source_connection_restored
+- complete_response_received
+- no_duplicate_ingestion
+rollback_action: none
+
+resume_from_checkpoint:
+applicable_failures:
+- source_failure
+risk_level: medium
+rollback_required: true
+approval_required: false
+timeout_seconds: 120
+validation_checks:
+- checkpoint_continuity_preserved
+- complete_source_data_retrieved
+- output_validation_passed
+rollback_action: restore_previous_checkpoint
+
+remove_invalid_output:
+applicable_failures:
+- corrupted_output
+risk_level: medium
+rollback_required: true
+approval_required: false
+timeout_seconds: 60
+validation_checks:
+- corrupted_output_removed
+- valid_output_preserved
+rollback_action: restore_removed_output
+
+restore_previous_valid_output:
+applicable_failures:
+- corrupted_output
+risk_level: medium
+rollback_required: true
+approval_required: false
+timeout_seconds: 60
+validation_checks:
+- checksum_passed
+- expected_partitions_present
+- downstream_read_passed
+rollback_action: restore_corrupted_output_for_analysis
+
+reprocess_from_checkpoint:
+applicable_failures:
+- corrupted_output
+risk_level: medium
+rollback_required: true
+approval_required: false
+timeout_seconds: 180
+validation_checks:
+- complete_output_written
+- checksum_passed
+- record_count_reconciled
+rollback_action: restore_previous_valid_output
