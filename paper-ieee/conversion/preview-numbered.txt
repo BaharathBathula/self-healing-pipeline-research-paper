@@ -1,0 +1,163 @@
+HEADINGS FOUND:
+LINE 29: The Related Work section now adds stronger monitoring/data-quality references:
+LINE 36: ### 2. Added Monitoring References in the Introduction
+LINE 38: The Introduction now states that recent work on recurring data-pipeline validation and comparative tool evaluation reinforces the need for automated monitoring and validation.
+LINE 52: The Methodology section now includes a short implementation summary covering:
+LINE 75: Section 5.1 and Section 5.2 were tightened to avoid repeating Results too heavily.
+LINE 117: 3. The 100% detection/classification results still require careful qualification.
+LINE 135: │   ├── 01_introduction.tex
+LINE 137: │   ├── 03_methodology.tex
+LINE 138: │   ├── 04_results.tex
+LINE 141: │   └── 07_conclusion.tex
+
+FIRST 150 LINES:
+LINE 001: # Day 20 — Manuscript v0.4 Quality Edits Summary
+LINE 002: 
+LINE 003: Paper title: **Reliability-Aware Self-Healing Data Pipelines: Automated Failure Detection, Root-Cause Classification, and Policy-Constrained Recovery**
+LINE 004: 
+LINE 005: Date: 2026-06-15
+LINE 006: 
+LINE 007: ## Day 20 Objective
+LINE 008: 
+LINE 009: Day 20 creates `docs/manuscript-v0.4.md` with final quality edits before LaTeX conversion.
+LINE 010: 
+LINE 011: This day focuses on targeted improvement, not broad rewriting. The goal is to make the manuscript cleaner, more defensible, and ready for Day 21 IEEE-style LaTeX conversion.
+LINE 012: 
+LINE 013: ---
+LINE 014: 
+LINE 015: ## Files Created
+LINE 016: 
+LINE 017: ```text
+LINE 018: docs/manuscript-v0.4.md
+LINE 019: docs/references-v0.4.bib
+LINE 020: docs/day-20-manuscript-v0.4-quality-edits-summary.md
+LINE 021: ```
+LINE 022: 
+LINE 023: ---
+LINE 024: 
+LINE 025: ## What Changed From v0.3 to v0.4
+LINE 026: 
+LINE 027: ### 1. Added Stronger Data Observability and Monitoring References
+LINE 028: 
+LINE 029: The Related Work section now adds stronger monitoring/data-quality references:
+LINE 030: 
+LINE 031: - Auto-Validate-by-History for recurring production data-pipeline validation.
+LINE 032: - Evaluating Data Quality Tools for comparative data-quality tooling discussion.
+LINE 033: 
+LINE 034: These strengthen the previously thin observability/data-quality monitoring subsection.
+LINE 035: 
+LINE 036: ### 2. Added Monitoring References in the Introduction
+LINE 037: 
+LINE 038: The Introduction now states that recent work on recurring data-pipeline validation and comparative tool evaluation reinforces the need for automated monitoring and validation.
+LINE 039: 
+LINE 040: ### 3. Expanded Section 2.3 Data Observability and Monitoring
+LINE 041: 
+LINE 042: Section 2.3 now explains:
+LINE 043: 
+LINE 044: - monitoring and observability signals,
+LINE 045: - recurring data-pipeline validation,
+LINE 046: - historical execution statistics for data-quality issue detection,
+LINE 047: - data-quality tool capabilities and tradeoffs,
+LINE 048: - why monitoring still does not equal governed recovery.
+LINE 049: 
+LINE 050: ### 4. Added Section 3.10 Implementation Summary
+LINE 051: 
+LINE 052: The Methodology section now includes a short implementation summary covering:
+LINE 053: 
+LINE 054: - trial configuration,
+LINE 055: - deterministic experiment control plane,
+LINE 056: - observed data and artifact metadata,
+LINE 057: - detection outcome representation,
+LINE 058: - root-cause classification representation,
+LINE 059: - remediation registry/action fields,
+LINE 060: - policy-related outcome fields,
+LINE 061: - post-recovery verification.
+LINE 062: 
+LINE 063: This addresses the Day 18 audit concern that the implementation was not described enough.
+LINE 064: 
+LINE 065: ### 5. Added Recovery Variation Paragraph
+LINE 066: 
+LINE 067: Section 4.3 now explains why recovery varies by failure scenario:
+LINE 068: 
+LINE 069: - some scenarios have supported policy-approved remediations,
+LINE 070: - others are unsupported, unsafe, unverifiable, or intentionally escalated,
+LINE 071: - lower recovery is not necessarily detection or classification failure.
+LINE 072: 
+LINE 073: ### 6. Reduced Discussion Repetition
+LINE 074: 
+LINE 075: Section 5.1 and Section 5.2 were tightened to avoid repeating Results too heavily.
+LINE 076: 
+LINE 077: ### 7. Added Section 6.7 Synthetic Data and Failure Taxonomy Bias
+LINE 078: 
+LINE 079: Threats to Validity now directly addresses:
+LINE 080: 
+LINE 081: - predefined synthetic taxonomy,
+LINE 082: - possible detector/classifier advantage,
+LINE 083: - why 100% accuracy should not be generalized,
+LINE 084: - need for real incidents or independently constructed failure scenarios.
+LINE 085: 
+LINE 086: ### 8. Updated References
+LINE 087: 
+LINE 088: Two new references were added:
+LINE 089: 
+LINE 090: ```text
+LINE 091: [13] Auto-Validate by-History
+LINE 092: [14] Evaluating Data Quality Tools
+LINE 093: ```
+LINE 094: 
+LINE 095: A new BibTeX file was also created:
+LINE 096: 
+LINE 097: ```text
+LINE 098: docs/references-v0.4.bib
+LINE 099: ```
+LINE 100: 
+LINE 101: ---
+LINE 102: 
+LINE 103: ## Current v0.4 Status
+LINE 104: 
+LINE 105: `manuscript-v0.4.md` is the strongest Markdown manuscript so far.
+LINE 106: 
+LINE 107: It is ready for Day 21 LaTeX conversion.
+LINE 108: 
+LINE 109: It is still not submission-ready because venue formatting, figure handling, and final citation style are not done.
+LINE 110: 
+LINE 111: ---
+LINE 112: 
+LINE 113: ## Remaining Risks
+LINE 114: 
+LINE 115: 1. The experiment is still synthetic-only.
+LINE 116: 2. There is still no true alert-only or static-rule baseline comparison.
+LINE 117: 3. The 100% detection/classification results still require careful qualification.
+LINE 118: 4. arXiv references may need venue-specific replacement or supplementation later.
+LINE 119: 5. Markdown figures must be converted to LaTeX figure environments.
+LINE 120: 6. The reference list must be integrated into BibTeX during LaTeX conversion.
+LINE 121: 
+LINE 122: ---
+LINE 123: 
+LINE 124: ## Day 21 Handoff
+LINE 125: 
+LINE 126: Day 21 should create the IEEE-style LaTeX paper package.
+LINE 127: 
+LINE 128: Recommended structure:
+LINE 129: 
+LINE 130: ```text
+LINE 131: paper/
+LINE 132: ├── main.tex
+LINE 133: ├── references.bib
+LINE 134: ├── sections/
+LINE 135: │   ├── 01_introduction.tex
+LINE 136: │   ├── 02_related_work.tex
+LINE 137: │   ├── 03_methodology.tex
+LINE 138: │   ├── 04_results.tex
+LINE 139: │   ├── 05_discussion.tex
+LINE 140: │   ├── 06_threats_to_validity.tex
+LINE 141: │   └── 07_conclusion.tex
+LINE 142: └── figures/
+LINE 143:     ├── figure_1_accuracy_by_scenario.pdf
+LINE 144:     ├── figure_2_recovery_by_scenario.pdf
+LINE 145:     ├── figure_3_runtime_distribution.pdf
+LINE 146:     └── figure_4_classification_confusion_matrix.pdf
+LINE 147: ```
+LINE 148: 
+LINE 149: Day 21 should not add new research claims. It should convert the approved v0.4 manuscript into LaTeX.
+LINE 150: 

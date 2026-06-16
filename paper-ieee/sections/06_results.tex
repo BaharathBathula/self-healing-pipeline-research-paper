@@ -1,0 +1,156 @@
+\section{Results}
+
+\subsection{Experiment Summary}
+
+
+The experimental evaluation produced 780 total trial records spanning injected failures, healthy controls, and boundary-control scenarios. Of these, 690 trials corresponded to injected data-pipeline failure conditions, 60 trials represented healthy-control executions, and 30 trials represented boundary-control conditions. The experiment design therefore evaluates both positive failure cases and non-failure controls rather than measuring the detector only on failure-positive examples.
+
+\begin{table}[t]
+\caption{Summary of experimental results.}
+\label{tab:results-1}
+\centering
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Metric} & \textbf{Value} \\
+\midrule
+Total trials & 780 \\
+Injected failure trials & 690 \\
+Healthy control trials & 60 \\
+Boundary-control trials & 30 \\
+Failure detection accuracy & 100\% \\
+Root-cause classification accuracy & 100\% \\
+Verified recovery rate across injected failures & 52.17\% \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+These numbers should be interpreted conservatively. Detection and classification performance can be described as perfect within the current synthetic experiment configuration. Recovery performance must not be described as perfect. The key finding is that the framework reliably detects and classifies injected failures under the evaluated conditions, while recovery success depends on whether the remediation is policy-approved, executable, and verifiable.
+
+\subsection{Detection and Root-Cause Classification}
+
+
+Across the evaluated trial set, the self-healing control plane achieved 100\% failure detection accuracy and 100\% root-cause classification accuracy under the current synthetic failure model. This result indicates that the implemented detector and classifier were able to consistently identify the presence of injected failures and assign the expected failure category when the failure type was represented in the experiment configuration.
+
+This result should be interpreted as evidence of internal consistency and technical feasibility, not as evidence that the model will generalize without degradation to arbitrary enterprise production environments. The failures are synthetic, the taxonomy is predefined, and the classifier is evaluated against known categories.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/figure_1_accuracy_by_scenario.pdf}
+\caption{Figure 1. Detection and root-cause classification accuracy by injected scenario.}
+\label{fig:accuracy-by-scenario}
+\end{figure}
+
+
+\textbf{Figure 1. Detection and root-cause classification accuracy by injected scenario.} The figure compares detection accuracy and classification accuracy across the evaluated scenario taxonomy.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/figure_4_classification_confusion_matrix.pdf}
+\caption{Figure 4. Root-cause classification confusion matrix.}
+\label{fig:classification-confusion-matrix}
+\end{figure}
+
+
+\textbf{Figure 4. Root-cause classification confusion matrix.} The figure compares injected root-cause labels against predicted root-cause labels.
+
+\subsection{Verified Recovery}
+
+
+Verified recovery was achieved in 52.17\% of injected failure trials. This result is intentionally lower than detection and classification accuracy because recovery is subject to additional constraints. A failure may be detected and correctly classified while still not being automatically remediated if the policy layer rejects the action, the remediation registry does not contain a safe recovery procedure, the recovery action cannot be verified, or the failure requires human escalation.
+
+For a reliability-oriented system, this distinction is important: unsafe automation is not counted as success merely because the system attempted a repair. Recovery is counted as successful only when the remediation is approved, executed, and validated.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/figure_2_recovery_by_scenario.pdf}
+\caption{Figure 2. Verified recovery rate by failure scenario.}
+\label{fig:recovery-by-scenario}
+\end{figure}
+
+
+\textbf{Figure 2. Verified recovery rate by failure scenario.} The figure reports the proportion of injected failure trials that resulted in verified recovery.
+
+Recovery variation across failure scenarios should be interpreted through the strict recovery definition. Some failure categories can be safely remediated when a supported action exists, the policy layer approves the action, and post-recovery validation passes. Other categories may require escalation because the remediation is unsupported, unsafe, unverifiable, or intentionally blocked by policy. Therefore, lower recovery for a scenario does not necessarily indicate detection or classification failure; it may indicate that the control plane correctly avoided unsafe automation.
+
+\subsection{Runtime Behavior}
+
+
+Runtime was recorded at the trial level using the \texttt{runtime\_milliseconds} field. Across 780 runtime records, the mean self-healing cycle runtime was 12.609 ms, the median runtime was 10.609 ms, the minimum runtime was 5.476 ms, the maximum runtime was 33.879 ms, and the p95 runtime was 26.666 ms.
+
+\begin{table}[t]
+\caption{Artifact availability for reproducibility.}
+\label{tab:results-2}
+\centering
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Runtime metric} & \textbf{Value} \\
+\midrule
+Runtime record count & 780 \\
+Mean runtime milliseconds & 12.609 \\
+Median runtime milliseconds & 10.609 \\
+Minimum runtime milliseconds & 5.476 \\
+Maximum runtime milliseconds & 33.879 \\
+p95 runtime milliseconds & 26.666 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+Runtime varied by experiment domain. The \texttt{artifact} domain contained 120 trials with a mean runtime of 8.043 ms, median runtime of 8.289 ms, and p95 runtime of 9.230 ms. The \texttt{dataframe} domain contained 660 trials with a mean runtime of 13.439 ms, median runtime of 11.298 ms, and p95 runtime of 27.022 ms.
+
+\begin{table}[t]
+\caption{Results table.}
+\label{tab:results-3}
+\centering
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Experiment domain} & \textbf{Trial count} & \textbf{Mean ms} & \textbf{Median ms} & \textbf{p95 ms} \\
+\midrule
+artifact & 120 & 8.043 & 8.289 & 9.230 \\
+dataframe & 660 & 13.439 & 11.298 & 27.022 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+Runtime should not be used as a primary success metric in isolation. Instead, it should be interpreted alongside detection, classification, recovery, policy, and validation outcomes.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/figure_3_runtime_distribution.pdf}
+\caption{Figure 3. Self-healing cycle runtime distribution.}
+\label{fig:runtime-distribution}
+\end{figure}
+
+
+\textbf{Figure 3. Self-healing cycle runtime distribution.} The figure summarizes runtime behavior across experiment domains.
+
+\subsection{Artifact Availability}
+
+
+The runtime and figure-generation evidence layer was verified through the Day 14 artifact traceability check. The raw combined results, scenario summary, classification confusion matrix, and all expected PNG/PDF figures were present locally during verification.
+
+\begin{table}[t]
+\caption{Results table.}
+\label{tab:results-4}
+\centering
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Artifact} & \textbf{Path} & \textbf{Status} \\
+\midrule
+Raw combined results & \texttt{experiments/raw\_results/combined\_experiment\_results.csv} & Found \\
+Scenario summary & \texttt{experiments/derived\_results/scenario\_summary.csv} & Found \\
+Classification confusion matrix & \texttt{experiments/derived\_results/classification\_confusion\_matrix.csv} & Found \\
+Figure 1 PNG & \texttt{figures/figure\_1\_accuracy\_by\_scenario.png} & Found \\
+Figure 2 PNG & \texttt{figures/figure\_2\_recovery\_by\_scenario.png} & Found \\
+Figure 3 PNG & \texttt{figures/figure\_3\_runtime\_distribution.png} & Found \\
+Figure 4 PNG & \texttt{figures/figure\_4\_classification\_confusion\_matrix.png} & Found \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
