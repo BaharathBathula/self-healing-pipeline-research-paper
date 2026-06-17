@@ -1,0 +1,7 @@
+\section{Conclusion and Future Work}
+
+This paper presented a reliability-aware self-healing control plane for data pipelines. The framework models self-healing as a staged process involving failure detection, root-cause classification, policy-constrained remediation, execution, post-recovery validation, rollback or escalation, and evidence preservation. The experimental evaluation used a reproducible synthetic failure-injection setup with 780 total trials, including injected failures, healthy controls, and boundary controls.
+
+Under the current controlled experiment configuration, the framework achieved 100\% failure detection accuracy and 100\% root-cause classification accuracy, while verified recovery was achieved in 52.17\% of injected failure trials. Runtime was measured across 780 records, with a mean of 12.609 ms, median of 10.609 ms, and p95 of 26.666 ms. These results support feasibility under controlled conditions, while also showing that detection and diagnosis should not be treated as equivalent to verified recovery.
+
+The results support the view that self-healing data pipelines should be evaluated as governed reliability-control systems rather than unrestricted automation scripts. Future work should evaluate the framework on real production incidents, expand the failure taxonomy, compare against alert-only and static-rule baselines under identical scenarios, incorporate probabilistic or learning-based root-cause models, and study the operational tradeoffs between automation, escalation, safety, and recovery latency.
