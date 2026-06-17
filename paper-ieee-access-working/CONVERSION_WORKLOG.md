@@ -210,3 +210,28 @@ Artifact and reproducibility language strengthened.
 Next action:
 
 Rebuild the PDF and fix LaTeX/page/layout issues.
+
+## Phase 2 Day 11
+
+Rebuilt the IEEE Access working manuscript and fixed LaTeX/page/layout issues.
+
+Actions completed:
+
+- Freshly rebuilt the IEEE Access PDF
+- Inspected LaTeX warnings
+- Identified one major overfull hbox warning
+- Traced the issue to the artifact availability table
+- Replaced the wide artifact table with a compact column-safe table
+- Fixed abstract spacing typo
+- Kept email formatting safer with \nolinkurl{}
+- Rebuilt the manuscript successfully
+- Confirmed no overfull boxes remain
+- Confirmed no undefined references, undefined citations, or duplicate labels remain
+
+Status:
+
+PDF rebuild and layout fix completed.
+
+Next action:
+
+Perform full PDF quality audit.

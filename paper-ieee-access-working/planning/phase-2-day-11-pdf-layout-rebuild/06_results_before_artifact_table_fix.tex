@@ -6,20 +6,19 @@ This section presents the evaluation results for the proposed self-healing data 
 The experimental evaluation produced 780 total trial records spanning injected failures, healthy controls, and boundary-control scenarios. Of these, 690 trials corresponded to injected data-pipeline failure conditions, 60 trials represented healthy-control executions, and 30 trials represented boundary-control conditions. The experiment design therefore evaluates both positive failure cases and non-failure controls rather than measuring the detector only on failure-positive examples.
 
 \begin{table}[t]
-\caption{Artifact inventory included with the working manuscript.}
+\caption{Artifact availability for reproducibility.}
 \label{tab:artifact-availability}
 \centering
-\small
-\begin{tabularx}{\columnwidth}{@{}lX@{}}
-\toprule
-Artifact & Purpose \\
-\midrule
-Fig.~1 & Accuracy-by-scenario result figure, provided as PDF and PNG. \\
-Fig.~2 & Recovery-by-scenario result figure, provided as PDF and PNG. \\
-Fig.~3 & Runtime-distribution result figure, provided as PDF and PNG. \\
-Fig.~4 & Classification confusion-matrix result figure, provided as PDF and PNG. \\
-\bottomrule
-\end{tabularx}
+\begin{tabular}{lll}
+\hline
+Artifact & Path & Status \\
+\hline
+Figure 1 PDF & \path{figures/figure_1_accuracy_by_scenario.pdf} & Found \\
+Figure 2 PDF & \path{figures/figure_2_recovery_by_scenario.pdf} & Found \\
+Figure 3 PDF & \path{figures/figure_3_runtime_distribution.pdf} & Found \\
+Figure 4 PDF & \path{figures/figure_4_classification_confusion_matrix.pdf} & Found \\
+\hline
+\end{tabular}
 \end{table}
 
 \noindent\textit{Artifact availability:} The working manuscript package includes the publication-ready result figures listed in Table~\ref{tab:artifact-availability}. The broader project repository contains the implementation, synthetic-data generation workflow, generated outputs, derived summaries, confusion-matrix data, and figure-generation scripts used to reproduce the reported results. No proprietary enterprise dataset is required. A final public URL or archival DOI should be inserted at submission time after the artifact package is deposited.
@@ -93,5 +92,4 @@ The matrix should be read as evidence of how well the framework separates failur
 Taken together, the results demonstrate that the framework implements the core self-healing loop under controlled experimental conditions. The evaluation includes injected failures, healthy controls, and boundary controls; reports scenario-level accuracy; separates recovery behavior from detection behavior; measures runtime distribution; and provides a confusion-matrix view of classification quality.
 
 The results should be interpreted as controlled evidence of feasibility rather than a claim of universal production readiness. The experiments use synthetic data and bounded failure scenarios, which improves reproducibility but limits direct generalization to all production environments. Nevertheless, the results support the central claim that data pipeline reliability can be improved by integrating failure detection, root-cause classification, recovery decisioning, and auditable telemetry into a single framework.
-
 

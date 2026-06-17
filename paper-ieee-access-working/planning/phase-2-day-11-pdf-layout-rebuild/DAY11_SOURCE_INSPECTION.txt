@@ -1,0 +1,120 @@
+DAY 11 SOURCE INSPECTION
+
+06_results.tex lines 1-70:
+   1: \section{Results}
+   2: \label{sec:results}
+   3: 
+   4: This section presents the evaluation results for the proposed self-healing data pipeline framework. The results focus on four aspects of the self-healing control loop: detection and classification accuracy, recovery behavior, runtime behavior, and root-cause classification quality. The goal is not only to report whether the framework produced successful outcomes, but also to explain what the observed behavior means for practical data pipeline reliability.
+   5: 
+   6: The experimental evaluation produced 780 total trial records spanning injected failures, healthy controls, and boundary-control scenarios. Of these, 690 trials corresponded to injected data-pipeline failure conditions, 60 trials represented healthy-control executions, and 30 trials represented boundary-control conditions. The experiment design therefore evaluates both positive failure cases and non-failure controls rather than measuring the detector only on failure-positive examples.
+   7: 
+   8: \begin{table}[t]
+   9: \caption{Artifact availability for reproducibility.}
+  10: \label{tab:artifact-availability}
+  11: \centering
+  12: \begin{tabular}{lll}
+  13: \hline
+  14: Artifact & Path & Status \\
+  15: \hline
+  16: Figure 1 PDF & \path{figures/figure_1_accuracy_by_scenario.pdf} & Found \\
+  17: Figure 2 PDF & \path{figures/figure_2_recovery_by_scenario.pdf} & Found \\
+  18: Figure 3 PDF & \path{figures/figure_3_runtime_distribution.pdf} & Found \\
+  19: Figure 4 PDF & \path{figures/figure_4_classification_confusion_matrix.pdf} & Found \\
+  20: \hline
+  21: \end{tabular}
+  22: \end{table}
+  23: 
+  24: \noindent\textit{Artifact availability:} The working manuscript package includes the publication-ready result figures listed in Table~\ref{tab:artifact-availability}. The broader project repository contains the implementation, synthetic-data generation workflow, generated outputs, derived summaries, confusion-matrix data, and figure-generation scripts used to reproduce the reported results. No proprietary enterprise dataset is required. A final public URL or archival DOI should be inserted at submission time after the artifact package is deposited.
+  25: 
+  26: \subsection{Detection and Classification Accuracy by Scenario}
+  27: 
+  28: Figure~\ref{fig:accuracy-by-scenario} summarizes detection and root-cause classification accuracy across injected scenarios. This result is important because a self-healing pipeline cannot safely trigger remediation unless it first identifies that a failure has occurred and assigns the failure to an actionable category.
+  29: 
+  30: \begin{figure}[t]
+  31: \centering
+  32: \includegraphics[width=\linewidth]{figures/figure_1_accuracy_by_scenario.pdf}
+  33: \caption{Detection and root-cause classification accuracy by injected scenario.}
+  34: \label{fig:accuracy-by-scenario}
+  35: \end{figure}
+  36: 
+  37: The scenario-level accuracy view provides a more useful reliability signal than a single aggregate score. Aggregate accuracy can hide weak behavior on specific failure types, especially when some scenarios are easier to detect than others. In contrast, scenario-level reporting shows whether the framework behaves consistently across source failures, schema-related failures, data-quality failures, runtime failures, and control cases.
+  38: 
+  39: The result supports two observations. First, the framework is able to convert raw pipeline symptoms into structured failure signals rather than treating all failures as generic execution errors. Second, the evaluation includes healthy and boundary-control executions, which helps test whether the detection logic avoids treating every unusual condition as a failure. This distinction matters in production settings because excessive false alarms can reduce operator trust and lead to alert fatigue.
+  40: 
+  41: \subsection{Recovery Outcomes by Scenario}
+  42: 
+  43: Figure~\ref{fig:recovery-by-scenario} reports verified recovery outcomes across injected failure scenarios. Recovery is evaluated separately from detection because detecting a failure is not equivalent to safely remediating it.
+  44: 
+  45: \begin{figure}[t]
+  46: \centering
+  47: \includegraphics[width=\linewidth]{figures/figure_2_recovery_by_scenario.pdf}
+  48: \caption{Verified recovery outcomes by injected failure scenario.}
+  49: \label{fig:recovery-by-scenario}
+  50: \end{figure}
+  51: 
+  52: The recovery results show how the framework behaves after a failure has been detected and classified. For recoverable scenarios, the framework attempts an automated response such as retry, fallback handling, quarantine, or controlled continuation. For scenarios where automatic remediation is unsafe or inappropriate, the expected behavior is containment or escalation rather than forced recovery.
+  53: 
+  54: This separation is important for evaluating self-healing systems. A framework that attempts to automatically repair every failure may create downstream data corruption or mask serious upstream defects. The recovery results therefore should be interpreted in terms of safe operational behavior, not simply maximum automation. A contained failure can be a correct outcome when automated recovery would be unsafe.
+  55: 
+  56: The recovery-by-scenario view also helps identify where the framework is strongest. Transient or structurally simple failures are typically more amenable to automated recovery, while schema and quality failures may require stricter containment depending on the severity of the violation. This supports a practical design principle: self-healing pipelines should combine automation with policy-aware safeguards.
+  57: 
+  58: \subsection{Runtime Behavior}
+  59: 
+  60: Figure~\ref{fig:runtime-distribution} presents the runtime distribution for the self-healing cycle. Runtime behavior is included because detection, classification, telemetry, and recovery logic introduce additional processing work. A reliability framework must therefore improve failure handling without imposing unacceptable overhead.
+  61: 
+  62: \begin{figure}[t]
+  63: \centering
+  64: \includegraphics[width=\linewidth]{figures/figure_3_runtime_distribution.pdf}
+  65: \caption{Self-healing cycle runtime distribution.}
+  66: \label{fig:runtime-distribution}
+  67: \end{figure}
+  68: 
+  69: The runtime distribution provides a local execution profile of the framework under the experimental environment. It should not be interpreted as a universal performance benchmark because runtime depends on machine resources, implementation details, dependency versions, and workload size. However, it is useful for understanding the relative behavior of the self-healing loop.
+  70: 
+
+main.tex title/abstract lines 18-38:
+  18: \begin{document}
+  19: 
+  20: \title{Reliability-Aware Self-Healing Data Pipelines:\\
+  21: Automated Failure Detection,\\
+  22: Root-Cause Classification,\\
+  23: and Policy-Constrained Recovery}
+  24: 
+  25: \author{
+  26: \IEEEauthorblockN{Baharath Bathula}
+  27: \IEEEauthorblockA{
+  28: Independent Researcher\\
+  29: Dallas, Texas, USA\\
+  30: Email: baharath.bathula@outlook.com
+  31: }
+  32: }
+  33: 
+  34: \maketitle
+  35: 
+  36: \begin{abstract}
+  37: Reliable data pipelines support analytics, machine learning, compliance reporting, and operational decision-making, but failures such as schema drift, data-quality degradation, freshness violations, transformation defects, and corrupted outputs often require more than task-level retries or alerting. Existing systems provide workflow orchestration, data-quality validation, observability, incident response, and policy enforcement, but these capabilities are commonly evaluated as separate functions rather than as an end-to-end recovery lifecycle. This paper presents a reliability-aware self-healing control plane for data pipelines that separates failure detection, root-cause classification, policy-constrained remediation, execution, post-recovery validation, rollback or escalation, and incident evidence preservation. A reproducible synthetic experiment with 780 trials evaluates the framework across injected failures, healthy controls, and boundary controls. Under the current controlled experiment configuration, the framework achieved 100\% failure detection accuracy and 100\% root-cause classification accuracy, while verified recovery was achieved in 52.17\% of injected failure trials. The mean self-healing cycle runtime was 12.609 ms, with a median of 10.609 ms and p95 of 26.666 ms. The results show that self-healing data pipelines should be evaluated using separate metrics for detection, diagnosis, and verified recovery because accurate detection does not guarantee safe or validated remediation.
+  38: \end{abstract}
+
+Log context around overfull warning:
+ 526:  (C:\Users\insus\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\t1pcr.fd
+ 527: File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
+ 528: )
+ 529: [5] [6]) (sections/04_methodology.tex [7] [8]) (sections/05_experiments.tex
+ 530: Underfull \hbox (badness 1629) in paragraph at lines 30--31
+ 531: []\T1/ptm/m/n/10 Failure in-jec-tion mod-ules for in-tro-duc-ing con-trolled
+ 532:  []
+ 533: 
+ 534: [9] [10]) (sections/06_results.tex
+ 535: Overfull \hbox (99.08801pt too wide) in paragraph at lines 12--22
+ 536:  [][] 
+ 537:  []
+ 538: 
+ 539: <figures/figure_1_accuracy_by_scenario.pdf, id=420, 1293.68378pt x 567.01736pt>
+ 540: 
+ 541: File: figures/figure_1_accuracy_by_scenario.pdf Graphic file (type pdf)
+ 542: <use figures/figure_1_accuracy_by_scenario.pdf>
+ 543: Package pdftex.def Info: figures/figure_1_accuracy_by_scenario.pdf  used on inp
+
+Git status:
+ M paper-ieee-access-working/main.tex
+?? paper-ieee-access-working/planning/phase-2-day-11-pdf-layout-rebuild/

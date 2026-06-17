@@ -1,0 +1,22 @@
+DAY 11 TITLE FIX CHECK
+
+PDF:
+C:\Research\self-healing-pipeline-research-paper\implementation\paper-ieee-access-working\build\main.pdf
+Size: 295921 bytes
+
+PAGE COUNT:
+
+
+OVERFULL BOXES:
+535: Overfull \hbox (99.08801pt too wide) in paragraph at lines 12--22
+
+OTHER WARNINGS:
+530: Underfull \hbox (badness 1629) in paragraph at lines 30--31
+568: Underfull \hbox (badness 1442) in paragraph at lines 88--89
+576: Underfull \hbox (badness 6316) in paragraph at lines 92--93
+581: Underfull \hbox (badness 2277) in paragraph at lines 6--7
+586: Underfull \hbox (badness 1571) in paragraph at lines 14--15
+593: Underfull \hbox (badness 10000) in paragraph at lines 41--44
+
+GIT STATUS:
+ M paper-ieee-access-working/main.tex ?? paper-ieee-access-working/planning/phase-2-day-11-pdf-layout-rebuild/
