@@ -46,3 +46,22 @@ Methodology expansion completed.
 Next action:
 
 Expand the Experiments section.
+
+## Phase 2 Day 3
+
+Expanded the Experiments section.
+
+Actions completed:
+
+- Preserved the original placeholder Experiments file
+- Replaced placeholder experiment content with a journal-level experimental design section
+- Added experimental objectives, environment, baseline run, failure injection procedure, scenario categories, execution workflow, recovery experiment design, telemetry collection, figure generation workflow, validation/testing, determinism notes, and experimental boundaries
+- Compile-tested the working manuscript successfully
+
+Status:
+
+Experiments expansion completed.
+
+Next action:
+
+Expand the Results interpretation section.
