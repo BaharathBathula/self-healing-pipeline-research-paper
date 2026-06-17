@@ -26,4 +26,3 @@ This paper makes the following contributions:
 \end{enumerate}
 
 The remainder of this paper is organized as follows. The Background and Related Work section positions the framework relative to workflow orchestration, data-quality validation, observability, AIOps, autonomic computing, production ML systems, and policy-governed automation. The Framework section describes the proposed self-healing control-plane architecture. The Methodology and Experimental Design sections describe the synthetic data generation, failure injection procedure, evaluation workflow, and reproducibility protocol. The Results section presents detection, classification, recovery, runtime, and confusion-matrix findings. The Discussion section explains the practical implications of the results. The Limitations and Threats to Validity section states the evaluation boundaries. The Conclusion summarizes the contribution and future research directions.
-

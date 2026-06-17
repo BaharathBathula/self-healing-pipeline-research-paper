@@ -96,4 +96,3 @@ For this reason, runtime should be interpreted as environment-specific, while sc
 The main limitation of the study is that it evaluates a self-healing pipeline framework under controlled, reproducible conditions rather than through large-scale production deployment. This is an appropriate first step for demonstrating architecture, implementation, and experimental feasibility, but it is not sufficient for universal claims.
 
 The results show that the framework can integrate detection, classification, recovery decisioning, telemetry, and reproducible reporting under the evaluated scenarios. Future work should extend the evaluation to production-like datasets, larger workloads, historical incident traces, multi-label failure diagnosis, distributed execution, streaming pipelines, and enterprise governance controls.
-

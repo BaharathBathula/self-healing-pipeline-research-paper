@@ -1,0 +1,29 @@
+DAY 12 TEXT QUALITY CHECK
+
+PDF:
+C:\Research\self-healing-pipeline-research-paper\implementation\paper-ieee-access-working\build\main.pdf
+Size: 292123 bytes
+
+PAGE COUNT:
+18
+
+OVERFULL BOXES:
+None found.
+
+BAD REFERENCES / CITATIONS:
+None found.
+
+JOINED-WORD SCAN:
+None found.
+
+UNDERFULL BOXES:
+532: Underfull \vbox (badness 10000) has occurred while \output is active []
+543: Underfull \hbox (badness 1629) in paragraph at lines 30--31
+578: Underfull \hbox (badness 1442) in paragraph at lines 89--90
+585: Underfull \hbox (badness 6316) in paragraph at lines 92--93
+590: Underfull \hbox (badness 2277) in paragraph at lines 6--7
+595: Underfull \hbox (badness 1571) in paragraph at lines 14--15
+602: Underfull \hbox (badness 10000) in paragraph at lines 41--44
+
+GIT STATUS:
+ M paper-ieee-access-working/README.md  M paper-ieee-access-working/sections/01_introduction.tex  M paper-ieee-access-working/sections/03_framework.tex  M paper-ieee-access-working/sections/04_methodology.tex  M paper-ieee-access-working/sections/05_experiments.tex  M paper-ieee-access-working/sections/06_results.tex  M paper-ieee-access-working/sections/08_limitations.tex  M paper-ieee-access-working/sections/09_conclusion.tex ?? paper-ieee-access-working/planning/phase-2-day-12-pdf-quality-audit/

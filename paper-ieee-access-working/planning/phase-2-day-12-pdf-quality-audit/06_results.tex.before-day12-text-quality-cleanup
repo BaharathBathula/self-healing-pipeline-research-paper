@@ -95,4 +95,3 @@ Taken together, the results demonstrate that the framework implements the core s
 The results should be interpreted as controlled evidence of feasibility rather than a claim of universal production readiness. The experiments use synthetic data and bounded failure scenarios, which improves reproducibility but limits direct generalization to all production environments. Nevertheless, the results support the central claim that data pipeline reliability can be improved by integrating failure detection, root-cause classification, recovery decisioning, and auditable telemetry into a single framework.
 
 
-

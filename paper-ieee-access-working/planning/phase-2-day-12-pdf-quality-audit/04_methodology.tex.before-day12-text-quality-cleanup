@@ -123,4 +123,3 @@ The methodology has several limitations. Synthetic data improves control and rep
 Another limitation is that the methodology emphasizes framework behavior under known injected faults. Real incidents may involve multiple overlapping failures, ambiguous symptoms, or incomplete telemetry. The results should therefore be interpreted as evidence of feasibility and controlled reliability behavior, not as proof that the framework will automatically resolve all production incidents.
 
 Despite these limitations, the methodology provides a structured and reproducible basis for evaluating the core self-healing loop: detection, diagnosis, recovery, and auditability.
-

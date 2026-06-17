@@ -158,4 +158,3 @@ The evaluation should therefore be interpreted as a controlled demonstration of 
 \subsection{Summary}
 
 The experimental design provides a reproducible evaluation workflow for self-healing data pipeline behavior. By combining synthetic data, controlled failure injection, scenario-level outcomes, recovery tracking, telemetry collection, and figure generation, the experiments evaluate the framework as an integrated reliability mechanism rather than as a collection of isolated components.
-
