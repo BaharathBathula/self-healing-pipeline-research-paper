@@ -188,3 +188,25 @@ Conclusion and Abstract alignment completed.
 Next action:
 
 Strengthen artifact availability and reproducibility language.
+
+## Phase 2 Day 10
+
+Strengthened artifact availability and reproducibility language.
+
+Actions completed:
+
+- Preserved main.tex, 06_results.tex, and README.md before editing
+- Added a manuscript-level Data and Artifact Availability section
+- Updated the Results artifact availability statement
+- Added README artifact and reproducibility note
+- Clarified synthetic-data basis and no proprietary enterprise dataset requirement
+- Deferred final public URL or DOI until artifact deposit
+- Compile-tested the working manuscript successfully
+
+Status:
+
+Artifact and reproducibility language strengthened.
+
+Next action:
+
+Rebuild the PDF and fix LaTeX/page/layout issues.

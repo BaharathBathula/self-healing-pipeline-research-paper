@@ -21,7 +21,7 @@ Figure 4 PDF & \path{figures/figure_4_classification_confusion_matrix.pdf} & Fou
 \end{tabular}
 \end{table}
 
-\noindent\textit{Artifact availability:} The working manuscript package includes the publication-ready result figures listed in Table~\ref{tab:artifact-availability}. The broader project repository contains the implementation, synthetic-data generation workflow, generated outputs, derived summaries, confusion-matrix data, and figure-generation scripts used to reproduce the reported results. No proprietary enterprise dataset is required. A final public URL or archival DOI should be inserted at submission time after the artifact package is deposited.
+\noindent\textit{Artifact availability:} The repository includes the raw outputs, derived summaries, confusion-matrix data, and publication-ready figures required to reproduce the reported results. Table~\ref{tab:artifact-availability} lists the primary figure artifacts included with the manuscript package.
 
 \subsection{Detection and Classification Accuracy by Scenario}
 
@@ -92,4 +92,3 @@ The matrix should be read as evidence of how well the framework separates failur
 Taken together, the results demonstrate that the framework implements the core self-healing loop under controlled experimental conditions. The evaluation includes injected failures, healthy controls, and boundary controls; reports scenario-level accuracy; separates recovery behavior from detection behavior; measures runtime distribution; and provides a confusion-matrix view of classification quality.
 
 The results should be interpreted as controlled evidence of feasibility rather than a claim of universal production readiness. The experiments use synthetic data and bounded failure scenarios, which improves reproducibility but limits direct generalization to all production environments. Nevertheless, the results support the central claim that data pipeline reliability can be improved by integrating failure detection, root-cause classification, recovery decisioning, and auditable telemetry into a single framework.
-

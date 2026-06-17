@@ -22,3 +22,13 @@ The current contents were copied from the existing IEEE paper package and will b
 ## Intended Use
 
 Use this folder for IEEE Access conversion work only. Do not modify the already-clean Day 24 submission package directly.
+
+## Artifact and Reproducibility Note
+
+This folder is a working IEEE Access manuscript folder, not the final public archive.
+
+The working manuscript folder contains manuscript source, bibliography, section files, tables, and publication-ready figures. The broader project repository contains the implementation, synthetic-data generation workflow, failure-injection logic, evaluation outputs, derived summaries, and figure-generation scripts used to reproduce the reported results.
+
+No proprietary enterprise dataset is required for the reported evaluation. The experiments use generated synthetic data and controlled failure-injection scenarios.
+
+A final public repository URL or archival DOI should be added before journal submission after the artifact package is deposited.
