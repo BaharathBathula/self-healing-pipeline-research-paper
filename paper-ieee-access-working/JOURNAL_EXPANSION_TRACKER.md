@@ -109,3 +109,25 @@ Completed:
 Updated file:
 
 paper-ieee-access-working/sections/06_results.tex
+
+## Phase 2 Day 6 Limitations Expansion Status
+
+Completed:
+
+- Limitations expansion
+- Threats to validity
+- Internal validity
+- External validity
+- Construct validity
+- Synthetic data limitation
+- Failure scenario coverage limitation
+- Controlled failure injection limitation
+- Runtime limitation
+- Recovery generalizability limitation
+- Classification validity
+- Policy and governance boundaries
+- Reproducibility boundaries
+
+Updated file:
+
+paper-ieee-access-working/sections/08_limitations.tex

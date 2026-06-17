@@ -104,3 +104,21 @@ Background and Related Work expansion completed.
 Next action:
 
 Expand the Limitations and Threats to Validity section.
+
+## Phase 2 Day 6
+
+Expanded the Limitations and Threats to Validity section.
+
+Actions completed:
+
+- Preserved the previous Limitations section
+- Added detailed synthetic data, scenario coverage, controlled failure injection, runtime environment, recovery generalizability, classification validity, policy/governance, external validity, internal validity, construct validity, and reproducibility boundary discussion
+- Compile-tested the working manuscript successfully
+
+Status:
+
+Limitations and Threats to Validity expansion completed.
+
+Next action:
+
+Expand the Discussion section.
