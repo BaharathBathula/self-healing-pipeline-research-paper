@@ -1,0 +1,9 @@
+Venue Name,Venue Type,Publisher/Sponsor,Scope Fit,Format Fit,Page Limit Risk,APC/Cost Risk,Indexing/Visibility,Artifact Policy,Review Speed,Submission Risk,Status,Notes
+IEEE Access,Journal,IEEE,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,Candidate only,Verify current APC scope indexing and article type
+SoftwareX,Journal,Elsevier,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,Candidate only,May fit software artifact angle if implementation is emphasized
+Journal of Big Data,Journal,Springer Nature,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,Candidate only,May fit data engineering reliability angle
+Future Generation Computer Systems,Journal,Elsevier,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,Candidate only,May require stronger systems contribution and deeper evaluation
+Data & Knowledge Engineering,Journal,Elsevier,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,Candidate only,Check fit for data quality and knowledge/data systems
+Information Systems,Journal,Elsevier,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,Candidate only,Likely higher bar; verify if pipeline reliability fits scope
+ACM/IEEE Data Engineering Conference,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,Candidate only,Use only if deadline page limit and topic track match
+arXiv,Preprint,arXiv,TBD,TBD,TBD,TBD,TBD,TBD,TBD,TBD,Optional,Use as preprint only if allowed by target venue
