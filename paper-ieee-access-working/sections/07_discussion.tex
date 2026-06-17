@@ -1,30 +1,78 @@
 \section{Discussion}
+\label{sec:discussion}
 
-\subsection{Detection and Diagnosis Are Necessary but Insufficient}
+The results show that self-healing data pipelines should be evaluated as reliability-control systems rather than as isolated detection tools. A useful self-healing framework must do more than identify that a pipeline has failed. It must determine what type of failure occurred, decide whether automated recovery is safe, execute the selected response, verify or contain the outcome, and preserve evidence for later inspection. This section discusses the implications of the evaluation for data engineering reliability, production adoption, and future self-healing pipeline design.
 
+\subsection{Interpretation of the Evaluation Results}
 
-The experimental results support the view that policy-constrained self-healing should be understood as a staged reliability-control process. Detection, diagnosis, remediation selection, execution, validation, rollback, and escalation are distinct responsibilities. The 100\% detection and classification results demonstrate internal consistency under the current synthetic taxonomy, but they should not be interpreted as production generalization.
+The evaluation demonstrates that the framework implements an end-to-end self-healing loop under controlled experimental conditions. The loop includes failure injection, detection, root-cause classification, recovery decisioning, telemetry capture, and reproducible figure generation. This is important because many pipeline reliability approaches stop at one layer of the problem, such as scheduling, validation, or alerting.
 
-\subsection{Policy Constraints Are a Reliability Feature}
+The scenario-level accuracy results in Figure~\ref{fig:accuracy-by-scenario} indicate whether the framework can distinguish between different classes of pipeline behavior rather than treating all failures as equivalent. This matters operationally because a source outage, schema mismatch, data-quality violation, and runtime error require different responses. A generic failure signal may be sufficient for alerting, but it is not sufficient for safe remediation.
 
+The recovery results in Figure~\ref{fig:recovery-by-scenario} provide a separate view of what happens after detection and classification. This separation is necessary because detection success does not imply recovery success. A framework may detect a failure correctly but still choose containment or unresolved status if automated remediation is unsafe. In practical operations, this behavior can be more valuable than forcing recovery and risking invalid output propagation.
 
-The verified recovery rate reflects the system design choice to enforce policy approval and post-recovery validation. In enterprise data pipelines, an automated remediation that corrupts downstream data, violates governance rules, or masks a serious source-system problem is worse than controlled escalation. Counting only verified recovery makes the recovery metric more conservative and more useful than a metric that counts every remediation attempt as success.
+The runtime distribution in Figure~\ref{fig:runtime-distribution} provides a feasibility signal for the additional work introduced by the self-healing loop. Detection, classification, recovery, and telemetry introduce overhead, but this overhead must be interpreted against the cost of manual incident response, delayed detection, and downstream data-quality failures. The local runtime results are not universal benchmarks, but they show that the framework can be evaluated as an executable system rather than only described as an architecture.
 
-\subsection{Escalation Is a Valid Safety Outcome}
+The confusion matrix in Figure~\ref{fig:classification-confusion-matrix} is especially important for improving the framework. It shows where classification behavior is strong and where failure categories may be confused. In a self-healing pipeline, classification errors are not merely reporting errors. They can lead to incorrect recovery actions. Therefore, confusion-matrix analysis is a practical diagnostic tool for improving the control loop.
 
+\subsection{Detection Alone Is Not Self-Healing}
 
-A mature self-healing system should not attempt to repair every detected failure. Some failures are ambiguous, governance-sensitive, unsupported by the remediation registry, or unsafe to repair automatically. In those cases, escalation is a valid reliability outcome. The system preserves evidence and avoids unsafe action rather than forcing automation.
+A central implication of this work is that detection alone should not be described as self-healing. Detection identifies an abnormal condition. Self-healing requires an action path after detection. That action path may involve retry, fallback, quarantine, controlled continuation, escalation, or safe termination.
 
-This distinction is especially important for regulated or high-dependence data environments. Data platforms used for insurance, finance, healthcare, compliance reporting, or operational analytics often require traceability and defensible control points. In such environments, self-healing cannot be judged purely by speed or automation rate. It must also preserve evidence, enforce guardrails, and make failure-handling decisions auditable.
+This distinction matters because many pipeline reliability systems generate alerts or validation failures but still leave operators to interpret the cause and choose a response. Such systems are useful, but they do not close the reliability loop. A self-healing system must connect observation to decision and decision to outcome.
 
-\subsection{Runtime Interpretation}
+The proposed framework addresses this gap by structuring the pipeline response around detection, classification, recovery, and telemetry. This structure makes it possible to evaluate whether the system is only noticing failures or actually managing them in a controlled way.
 
+\subsection{Recovery Must Be Governed}
 
-The runtime results show that the evaluated self-healing cycle executed within millisecond-scale runtimes in the current synthetic environment. However, these results should be interpreted cautiously. The experiment does not prove that equivalent runtimes would hold for large production datasets, distributed infrastructure, external systems, or human-approval workflows. Runtime evidence is useful for feasibility, but production latency must be evaluated separately under realistic operational conditions.
+The evaluation also shows why recovery must be governed rather than automatic by default. Automated recovery can reduce manual effort, but unsafe automation can create downstream harm. For example, retry may be appropriate for a transient source issue, but it may be inappropriate for a schema violation that indicates a broken upstream contract. Similarly, fallback data may be acceptable for exploratory analytics but unacceptable for financial reporting, compliance reporting, or client-facing outputs.
 
-\subsection{Design Implications}
+For this reason, the framework treats containment and unresolved status as valid outcomes in some cases. This is a critical design point. A self-healing pipeline should not be judged only by the number of failures it automatically repairs. It should also be judged by whether it prevents unsafe propagation when repair is not justified.
 
+This framing aligns the system with practical production needs. Engineering teams do not need automation that hides serious incidents. They need automation that reduces toil while preserving safety, auditability, and operator trust.
 
-The results support a narrower but stronger contribution: a reproducible experimental framework for evaluating data-pipeline self-healing as a policy-constrained control plane. The contribution is not that every pipeline failure can be repaired automatically. The contribution is that failure detection, root-cause classification, safe remediation selection, validation, and escalation can be represented as measurable stages with separate outcomes.
+\subsection{Relationship to Orchestration, Validation, and Observability}
 
-Future self-healing data systems should separate detection, diagnosis, and recovery metrics; preserve failed recovery attempts; enforce policy constraints; validate recovered state; and maintain incident evidence. These design principles make self-healing safer and more auditable than unrestricted remediation automation.
+The framework should not be interpreted as a replacement for workflow orchestration, data-quality validation, or observability systems. Those systems remain necessary. Orchestration controls execution order and task scheduling. Validation checks whether data satisfies expected assumptions. Observability exposes operational signals and helps teams understand system state.
+
+The contribution of the proposed framework is the integration layer above these capabilities. It uses signals from pipeline execution and validation to make reliability decisions. It does not merely schedule work, test data, or produce alerts. It connects those signals to classification, recovery, telemetry, and reproducible reporting.
+
+This distinction is important for adoption. A production implementation would likely integrate with existing orchestration platforms, validation tools, logging systems, and governance controls. The framework provides a reliability-control pattern that can sit across those systems rather than requiring every organization to replace its existing stack.
+
+\subsection{Operational Implications for Data Engineering Teams}
+
+For data engineering teams, the main implication is that pipeline reliability should be designed as a lifecycle rather than as a set of disconnected checks. A pipeline incident typically requires several steps: noticing the issue, understanding its cause, deciding whether output can continue, taking action, verifying the result, and recording evidence. Manual handling of this lifecycle is slow and inconsistent.
+
+The framework demonstrates how this lifecycle can be encoded in software. Even when full recovery is not possible, the system can still provide value by classifying the issue, containing invalid outputs, and producing an audit trail. This can reduce ambiguity during incident response and help teams prioritize human review.
+
+The framework also encourages teams to define recovery policies explicitly. Without explicit policies, recovery behavior becomes ad hoc and difficult to audit. With explicit policies, teams can decide which failures are recoverable, which require quarantine, and which must stop the pipeline.
+
+\subsection{Implications for Production Adoption}
+
+The current implementation is a research framework, not a production deployment package. Production adoption would require additional engineering work. First, the framework would need to connect to real orchestration systems, storage platforms, validation tools, and monitoring systems. Second, recovery policies would need to be configured for specific business domains and risk levels. Third, the telemetry model would need to support operational audit requirements.
+
+Production use would also require stronger security and governance controls. Automated remediation may need role-based approval, policy-as-code enforcement, change logging, and integration with incident-management systems. In regulated environments, recovery behavior may need to be reviewed and approved before it can affect production outputs.
+
+The framework is therefore best interpreted as a reference architecture and experimental implementation. It demonstrates that the self-healing loop can be structured and evaluated, but production deployment would require organization-specific integration and validation.
+
+\subsection{Reproducibility as an Evaluation Requirement}
+
+A strength of the work is that the evaluation is packaged with reproducible artifacts. Reproducibility is important for self-healing systems because the claimed behavior must be inspectable. If a paper reports that a framework detects, classifies, and recovers from failures, reviewers should be able to inspect how those results were generated.
+
+The use of synthetic data, controlled failure injection, telemetry outputs, and generated figures supports this goal. It makes the evaluation easier to reproduce than a study that depends on private production data. At the same time, reproducibility comes with a tradeoff: synthetic and controlled scenarios cannot capture the full diversity of production incidents.
+
+This tradeoff is acceptable for the current stage of the work, but future evaluation should include production-like replay workloads, historical incident traces, and larger-scale execution environments.
+
+\subsection{Contribution Boundary}
+
+The contribution of this paper is not that detection, classification, recovery, or telemetry are individually new ideas. The contribution is the integration of these ideas into a controlled self-healing pipeline framework and the evaluation of the full loop under reproducible failure scenarios.
+
+This boundary matters because overclaiming would weaken the paper. The framework should not be presented as a universal solution for all pipeline failures. It should be presented as a concrete implementation and evaluation of a reliability-control pattern for data pipelines.
+
+The practical value is in showing how separate reliability mechanisms can be connected into an auditable and testable control loop. This creates a foundation for future work on production-scale self-healing systems.
+
+\subsection{Summary}
+
+The discussion highlights four main implications. First, self-healing requires more than detection. Second, recovery must be governed and safety-aware. Third, orchestration, validation, and observability are necessary but incomplete without a decision-and-action layer. Fourth, reproducible evaluation is essential for making self-healing claims credible.
+
+The results support the feasibility of the proposed framework under controlled conditions. The limitations indicate that future work should extend the evaluation to larger workloads, real incident traces, distributed execution, streaming pipelines, and enterprise governance controls. Together, these findings position the framework as a practical step toward auditable self-healing data infrastructure.
