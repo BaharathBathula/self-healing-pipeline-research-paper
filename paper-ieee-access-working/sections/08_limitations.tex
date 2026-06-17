@@ -1,0 +1,36 @@
+\section{Threats to Validity}
+
+\subsection{Internal Validity}
+
+
+The experiment uses controlled failure injection. This improves reproducibility but may simplify the relationship between injected failures and observable telemetry. A detector may perform better in this environment than in a production system where failures are noisy, overlapping, delayed, or partially observable.
+
+\subsection{Construct Validity}
+
+
+The metrics separate detection accuracy, root-cause classification accuracy, and verified recovery rate. This is appropriate for the paper's research objective, but these metrics do not capture every operational concern. For example, they do not fully measure operator trust, downstream business impact, long-term model drift, or the cost of false escalation.
+
+\subsection{External Validity}
+
+
+The results should be generalized carefully. The experiment currently evaluates a predefined taxonomy of failure conditions. Real-world data platforms may include infrastructure failures, vendor API instability, semantic data-quality defects, access-control issues, cross-system contract changes, and cascading downstream failures that are not fully represented in the current test set.
+
+\subsection{Runtime Validity}
+
+
+Runtime results were measured in the current synthetic experiment environment. These runtime measurements provide evidence about the local experimental setup, but they do not establish production latency under distributed workloads, large-scale datasets, external storage systems, network calls, or manual approval steps. Runtime claims should therefore remain limited to the preserved experimental records.
+
+\subsection{Conclusion Validity}
+
+
+The experiment provides evidence that the framework works under the current controlled setup. It does not prove superiority over mature observability products or enterprise incident-management workflows. Future experiments should compare the policy-constrained framework against alert-only monitoring and static rule-based automation using identical failure scenarios and operational metrics.
+
+\subsection{Baseline Comparison Scope}
+
+
+Claims involving baseline comparison are limited to experiment domains represented in the preserved trial records. The current preserved domains are \texttt{artifact} and \texttt{dataframe}; they do not constitute alert-only or static-rule baseline domains. Broader comparison against alert-only or static-rule systems remains future work unless evaluated under identical scenarios and metrics.
+
+\subsection{Synthetic Data and Failure Taxonomy Bias}
+
+
+Because the failure taxonomy is predefined and synthetic, the evaluation may favor the implemented detector and classifier. The 100\% detection and classification results should therefore be interpreted as evidence that the framework is internally coherent under the current experiment configuration, not as evidence that the same performance would hold for independently constructed failures or production incidents. Future work should evaluate the framework on real incident records, independently generated failure scenarios, or larger benchmark suites.

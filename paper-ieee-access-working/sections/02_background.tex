@@ -1,0 +1,54 @@
+\section{Related Work}
+
+Modern data platforms rely on a combination of workflow orchestration, data-quality validation, monitoring, incident management, and governance controls. Each area contributes to pipeline reliability, but existing approaches often treat detection, diagnosis, remediation, and validation as separate operational concerns. This paper builds on these areas while focusing on a narrower problem: how to evaluate policy-constrained self-healing for data-pipeline failures.
+
+\subsection{Workflow Orchestration}
+
+
+Workflow orchestration systems provide task scheduling, dependency management, retries, operational metadata, and execution control. Apache Airflow, for example, models workflows as Dags containing schedules, tasks, dependencies, callbacks, and operational parameters \cite{apacheairflowdags2026}. These capabilities are essential for data-pipeline execution because they define when tasks run, how tasks depend on one another, and how workflow instances are scheduled.
+
+However, orchestration is not equivalent to self-healing. Airflow documentation explicitly frames the Dag as being concerned with execution order and task relationships rather than the internal semantics of each task \cite{apacheairflowdags2026}. Empirical work on Airflow-related developer challenges also shows that workflow definition and execution remain practical sources of difficulty for developers, especially in distributed execution environments \cite{yasmin2024airflow}. A workflow engine can rerun a failed task or expose operational state, but it does not inherently determine whether a data-specific recovery action is safe, policy-approved, or validated after execution. This paper therefore treats orchestration as the execution substrate and evaluates self-healing as a separate reliability-control process.
+
+\subsection{Data-Quality Validation and Data Testing}
+
+
+Data-quality validation frameworks improve pipeline reliability by formalizing assumptions about data. Great Expectations provides expectations that define whether data conforms to expected conditions \cite{greatexpectations2026}. dbt data tests provide assertions over models and sources, returning records that fail specified assumptions \cite{dbt2026datatests}. These tools are directly relevant to self-healing because they expose structured validation signals that can help identify invalid pipeline states.
+
+However, validation is not recovery. Data-quality validation can reveal that a pipeline output is stale, malformed, incomplete, duplicated, or inconsistent, but it does not by itself determine the root cause, select a safe remediation, evaluate policy constraints, execute recovery, verify post-recovery health, and preserve incident evidence. Research on data-pipeline quality reinforces this distinction by showing that data pipelines are affected by many quality factors and root causes, including data type issues, cleaning-stage failures, integration issues, and compatibility problems \cite{foidl2023pipelinequality}. Related work on hidden technical debt also shows that data dependencies and pipeline jungles can create long-term maintenance risks in ML and data systems \cite{sculley2015hidden}. This paper uses data-quality validation as a signal source, but evaluates a broader recovery lifecycle.
+
+\subsection{Data Observability and Monitoring}
+
+
+Monitoring and observability systems collect operational signals about system state and pipeline behavior. In data systems, relevant signals include freshness, volume, schema stability, distribution drift, null-rate changes, duplicate rates, failed transformations, and downstream validation results. These signals help operators understand what is broken and why a pipeline may no longer be trustworthy. Site reliability engineering practice similarly emphasizes monitoring as a mechanism for understanding system behavior and generating actionable operational signals \cite{googlesre2026monitoring}.
+
+Recent research on recurring data pipelines has also highlighted the operational cost of manually monitoring and resolving data-quality issues at scale. Auto-Validate-by-History, for example, targets recurring production pipelines by using historical execution statistics to detect data-quality issues and reports evaluation over 2000 production pipelines \cite{tu2023autovalidate}. Broader tool evaluations also show that the data-quality tooling landscape includes both open-source and proprietary systems with different measurement capabilities and operational tradeoffs \cite{rehberger2026dqtools}. These works strengthen the motivation for automated monitoring, but they do not remove the need to evaluate what happens after detection.
+
+The limitation is that observability commonly improves visibility and alerting but does not guarantee controlled recovery. A data observability system may identify that a table is stale or that a schema changed unexpectedly, but recovery still often depends on human operators, manually encoded runbooks, or ad hoc retries. Monitoring also does not determine whether an automated remediation is governance-safe or whether the recovered pipeline state is valid after repair. This paper therefore treats observability as one stage within a larger self-healing lifecycle rather than as the full solution.
+
+\subsection{AIOps and Root-Cause Analysis}
+
+
+AIOps research addresses anomaly detection, event correlation, root-cause analysis, incident management, and automated operations in complex IT systems. A systematic mapping study of AIOps reports substantial attention to failure-related tasks, including anomaly detection and root-cause analysis \cite{notaro2020aiops}. Other work has explored mining root-cause knowledge from cloud-service incident investigations, showing how incident evidence can be converted into reusable operational knowledge \cite{saha2022rootcause}.
+
+This literature is important because it motivates automated diagnosis under operational complexity. However, much AIOps research focuses on infrastructure, services, logs, microservices, or cloud operations rather than data-pipeline-specific failure modes. Even when AIOps approaches support root-cause analysis, they do not necessarily implement policy-constrained remediation for data pipelines or evaluate recovery success using post-recovery validation. This paper contributes to the data-engineering reliability setting by connecting root-cause classification to governed remediation outcomes.
+
+\subsection{Autonomic Computing and Self-Healing Systems}
+
+
+Autonomic computing introduced the vision of systems that manage themselves through self-configuration, self-healing, self-optimization, and self-protection \cite{kephart2003vision}. This vision is directly relevant to data-pipeline reliability because pipeline failures increasingly exceed the capacity of manual operators to inspect, diagnose, and repair at scale. The autonomic-computing framing also emphasizes high-level goals and policy-guided self-management, which aligns with the need for governed recovery rather than unrestricted automation.
+
+The gap is that autonomic computing is a broad systems paradigm. It does not specify a reproducible evaluation framework for data-pipeline failure detection, root-cause classification, policy approval, remediation execution, and post-recovery validation. This paper operationalizes the self-healing concept for data pipelines and evaluates each stage separately.
+
+\subsection{Policy-as-Code and Governance}
+
+
+Policy-as-code systems decouple policy decision-making from application logic and enforcement points. Open Policy Agent provides a policy engine and documentation for offloading policy decisions from software systems \cite{opa2026docs}. This architecture is relevant to self-healing pipelines because automated remediation must not be allowed to perform unsafe changes simply because a failure was detected.
+
+However, policy engines are decision components, not complete self-healing systems. They can approve, deny, or structure decisions, but they do not generate telemetry, diagnose pipeline failures, execute repairs, validate recovered state, or preserve incident evidence. This paper uses policy-as-code as part of a larger reliability-control architecture in which policy decisions constrain recovery execution and verified recovery metrics.
+
+\subsection{Research Gap}
+
+
+Existing literature and systems provide strong building blocks for pipeline reliability: workflow orchestration executes tasks, data-quality frameworks validate expectations, observability platforms detect anomalies, AIOps methods support diagnosis, autonomic computing motivates self-management, and policy-as-code provides decision guardrails. The unresolved gap is the lack of an end-to-end, reproducible evaluation framework for data pipelines that measures the full lifecycle from injected failure to detection, classification, policy-constrained remediation, validation, rollback or escalation, and incident evidence.
+
+This gap matters because real enterprise data pipelines cannot be safely repaired by unrestricted automation. A failure may be detected correctly and classified accurately while still requiring human escalation because the remediation is unsafe, unavailable, unverifiable, or governance-sensitive. Therefore, a credible self-healing system must distinguish between detection success, classification success, attempted remediation, policy-approved remediation, executed remediation, and verified recovery.

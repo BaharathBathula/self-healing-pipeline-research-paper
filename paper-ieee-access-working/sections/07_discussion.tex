@@ -1,0 +1,30 @@
+\section{Discussion}
+
+\subsection{Detection and Diagnosis Are Necessary but Insufficient}
+
+
+The experimental results support the view that policy-constrained self-healing should be understood as a staged reliability-control process. Detection, diagnosis, remediation selection, execution, validation, rollback, and escalation are distinct responsibilities. The 100\% detection and classification results demonstrate internal consistency under the current synthetic taxonomy, but they should not be interpreted as production generalization.
+
+\subsection{Policy Constraints Are a Reliability Feature}
+
+
+The verified recovery rate reflects the system design choice to enforce policy approval and post-recovery validation. In enterprise data pipelines, an automated remediation that corrupts downstream data, violates governance rules, or masks a serious source-system problem is worse than controlled escalation. Counting only verified recovery makes the recovery metric more conservative and more useful than a metric that counts every remediation attempt as success.
+
+\subsection{Escalation Is a Valid Safety Outcome}
+
+
+A mature self-healing system should not attempt to repair every detected failure. Some failures are ambiguous, governance-sensitive, unsupported by the remediation registry, or unsafe to repair automatically. In those cases, escalation is a valid reliability outcome. The system preserves evidence and avoids unsafe action rather than forcing automation.
+
+This distinction is especially important for regulated or high-dependence data environments. Data platforms used for insurance, finance, healthcare, compliance reporting, or operational analytics often require traceability and defensible control points. In such environments, self-healing cannot be judged purely by speed or automation rate. It must also preserve evidence, enforce guardrails, and make failure-handling decisions auditable.
+
+\subsection{Runtime Interpretation}
+
+
+The runtime results show that the evaluated self-healing cycle executed within millisecond-scale runtimes in the current synthetic environment. However, these results should be interpreted cautiously. The experiment does not prove that equivalent runtimes would hold for large production datasets, distributed infrastructure, external systems, or human-approval workflows. Runtime evidence is useful for feasibility, but production latency must be evaluated separately under realistic operational conditions.
+
+\subsection{Design Implications}
+
+
+The results support a narrower but stronger contribution: a reproducible experimental framework for evaluating data-pipeline self-healing as a policy-constrained control plane. The contribution is not that every pipeline failure can be repaired automatically. The contribution is that failure detection, root-cause classification, safe remediation selection, validation, and escalation can be represented as measurable stages with separate outcomes.
+
+Future self-healing data systems should separate detection, diagnosis, and recovery metrics; preserve failed recovery attempts; enforce policy constraints; validate recovered state; and maintain incident evidence. These design principles make self-healing safer and more auditable than unrestricted remediation automation.
