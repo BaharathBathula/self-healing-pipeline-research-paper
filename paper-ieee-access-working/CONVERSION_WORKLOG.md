@@ -27,3 +27,22 @@ Working folder initialized.
 - Create IEEE Access conversion notes
 - Begin journal-version manuscript expansion
 - Rebuild PDF from working folder after first controlled edits
+
+## Phase 2 Day 2
+
+Expanded the Methodology section.
+
+Actions completed:
+
+- Preserved the original placeholder methodology file
+- Replaced placeholder methodology content with a journal-level section
+- Added research design, synthetic data rationale, failure scenario design, pipeline workflow, detection methodology, classification methodology, recovery methodology, evaluation metrics, reproducibility protocol, and threats to methodological validity
+- Compile-tested the working manuscript successfully
+
+Status:
+
+Methodology expansion completed.
+
+Next action:
+
+Expand the Experiments section.

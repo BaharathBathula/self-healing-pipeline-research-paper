@@ -1,1 +1,125 @@
-% Reserved. Methodology content is included in sections/03_framework.tex.
+\section{Methodology}
+\label{sec:methodology}
+
+This section describes the methodology used to design, execute, and evaluate the proposed self-healing data pipeline framework. The objective of the evaluation is not to reproduce a single proprietary production environment, but to provide a controlled and reproducible experimental setting in which failure detection, failure classification, automated recovery, and telemetry behavior can be inspected under repeatable fault conditions. The methodology is therefore organized around synthetic data generation, controlled failure injection, deterministic pipeline execution, scenario-level measurement, and artifact-based reproducibility.
+
+\subsection{Research Design}
+
+The study follows an experimental systems methodology. A baseline data pipeline is executed under normal conditions and then subjected to controlled failure scenarios that represent common classes of operational pipeline disruption. For each scenario, the framework records whether the failure was detected, how it was classified, whether a recovery action was triggered, whether the recovery succeeded, and how long the pipeline required to complete or recover.
+
+The methodology is designed around four research questions:
+
+\begin{itemize}
+    \item \textbf{RQ1:} Can the framework detect pipeline failures across multiple controlled failure scenarios?
+    \item \textbf{RQ2:} Can the framework classify failure types with sufficient accuracy to support automated remediation?
+    \item \textbf{RQ3:} Can recovery actions restore pipeline execution without manual intervention for recoverable failures?
+    \item \textbf{RQ4:} Can the evaluation workflow be reproduced using generated data, scripts, tests, and figure-generation artifacts?
+\end{itemize}
+
+These questions align the evaluation with the central claim of the paper: that self-healing data pipelines require more than passive monitoring. They require an integrated control loop that combines detection, diagnosis, remediation, and observability.
+
+\subsection{Synthetic Data Generation}
+
+The evaluation uses synthetic pipeline data rather than proprietary enterprise data. This choice improves reproducibility, avoids confidentiality concerns, and enables controlled variation of failure conditions. The synthetic data generation process creates structured records that emulate common data engineering inputs, including numeric attributes, categorical fields, timestamp-like values, completeness characteristics, and quality-sensitive fields.
+
+Synthetic data is used for three reasons. First, it allows the same experiment to be repeated across environments without depending on private datasets. Second, it enables deterministic construction of known failure scenarios, which is necessary for measuring detection and classification behavior. Third, it avoids exposing regulated, customer, financial, healthcare, insurance, or personally identifiable data.
+
+The generated dataset acts as the baseline input to the pipeline. Fault scenarios are then introduced through failure injection modules. Because the failure modes are known at injection time, they provide reference labels for evaluating classification and recovery behavior.
+
+\subsection{Failure Scenario Design}
+
+The framework is evaluated against representative failure scenarios that commonly affect production data pipelines. The scenarios are designed to exercise different parts of the self-healing control loop.
+
+The primary scenario categories are:
+
+\begin{itemize}
+    \item \textbf{Source availability failures:} cases where upstream input is missing, delayed, inaccessible, or incomplete.
+    \item \textbf{Schema and structural failures:} cases where expected columns, field types, or structural assumptions change.
+    \item \textbf{Data quality failures:} cases involving missing values, invalid values, duplicates, distribution shifts, or rule violations.
+    \item \textbf{Runtime and processing failures:} cases where pipeline execution encounters operational errors during transformation or validation.
+    \item \textbf{Recoverable transient failures:} cases where retry, fallback, or controlled remediation can restore execution.
+\end{itemize}
+
+Each scenario is intentionally bounded so that the expected behavior is inspectable. The goal is not to exhaustively model every possible production incident, but to create a controlled evaluation suite that demonstrates whether the proposed architecture can move from detection to diagnosis to recovery.
+
+\subsection{Pipeline Execution Workflow}
+
+Each experimental run follows the same execution workflow. First, baseline input data is generated or loaded from the generated artifact directory. Second, a failure scenario is selected and injected into the pipeline input or execution path. Third, the pipeline executes validation, monitoring, detection, classification, and recovery logic. Fourth, telemetry events and evaluation outputs are recorded. Finally, aggregate results are used to generate figures and summary metrics.
+
+The workflow can be summarized as follows:
+
+\begin{enumerate}
+    \item Generate or load synthetic baseline data.
+    \item Inject a controlled failure scenario.
+    \item Execute pipeline validation and processing logic.
+    \item Detect anomalous or failed behavior.
+    \item Classify the failure scenario.
+    \item Trigger a recovery action when the failure is recoverable.
+    \item Record telemetry, runtime, classification, and recovery outcomes.
+    \item Aggregate results across scenarios.
+    \item Generate evaluation figures and audit outputs.
+\end{enumerate}
+
+This workflow enforces repeatability because each stage is executed through code rather than manual intervention. It also separates the failure injection layer from the detection and recovery layers, reducing the risk that the evaluation directly encodes the desired outcome.
+
+\subsection{Failure Detection Methodology}
+
+Failure detection is evaluated as the first stage of the self-healing control loop. The detection layer observes pipeline inputs, validation results, runtime behavior, and quality checks. A failure is considered detected when the framework identifies an abnormal condition and emits a corresponding detection signal before the pipeline silently produces an invalid or incomplete output.
+
+The detection methodology combines rule-based validation, data quality checks, source availability checks, and runtime status inspection. Rule-based checks are used because they are transparent and auditable. In production-like data engineering contexts, interpretability is important because remediation decisions should be explainable to operators and governance stakeholders.
+
+Detection outcomes are recorded as scenario-level events. For each injected scenario, the framework records whether the failure was detected, whether the detection matched the expected failure category, and whether the detection led to downstream classification or recovery.
+
+\subsection{Failure Classification Methodology}
+
+After a failure is detected, the framework assigns the failure to a scenario class. Classification is necessary because different failure types require different recovery strategies. For example, a transient source access issue may be addressed through retry logic, while a schema mismatch may require quarantine, fallback mapping, or human review.
+
+The classification methodology uses features derived from validation outcomes, source checks, telemetry signals, and pipeline execution status. The classifier maps observed failure evidence to a failure category. Classification performance is evaluated using scenario-level accuracy and a confusion matrix. The confusion matrix is used to inspect whether certain failure types are systematically confused with others.
+
+The classification step is not treated as a standalone machine learning benchmark. Instead, it is evaluated as part of the operational self-healing loop. A classification is useful only if it supports an appropriate recovery decision or escalation path.
+
+\subsection{Recovery Methodology}
+
+Recovery is evaluated only for scenarios where automated remediation is safe and meaningful. The recovery engine selects a remediation action based on the detected and classified failure type. Example recovery actions include retrying transient operations, applying fallback handling, isolating invalid records, marking failed inputs for quarantine, or allowing controlled continuation when quality rules permit.
+
+A recovery attempt is considered successful when the framework restores pipeline execution to a valid terminal state or safely contains the failure without producing an invalid output. This definition is intentionally conservative. A recovery action should not be counted as successful merely because the pipeline continued running; it must either restore valid processing or prevent invalid output propagation.
+
+The recovery methodology distinguishes between three outcomes:
+
+\begin{itemize}
+    \item \textbf{Recovered:} the pipeline returns to a valid execution path after automated remediation.
+    \item \textbf{Contained:} the failure is isolated, quarantined, or safely escalated without corrupting downstream output.
+    \item \textbf{Unresolved:} the framework detects the failure but cannot safely remediate it automatically.
+\end{itemize}
+
+This distinction is important because not every failure should be automatically repaired. In enterprise environments, some failures require human approval, especially when remediation could affect business-critical data, regulated records, or downstream decisions.
+
+\subsection{Evaluation Metrics}
+
+The evaluation uses metrics that reflect the operational goals of self-healing pipeline behavior.
+
+\begin{itemize}
+    \item \textbf{Detection accuracy:} the proportion of injected failures correctly detected by the framework.
+    \item \textbf{Classification accuracy:} the proportion of detected failures assigned to the correct failure category.
+    \item \textbf{Recovery success rate:} the proportion of recoverable failures restored or safely contained by automated remediation.
+    \item \textbf{Runtime overhead:} the additional execution time introduced by detection, classification, telemetry, and recovery logic.
+    \item \textbf{Scenario-level performance:} the variation in detection, classification, and recovery behavior across failure types.
+\end{itemize}
+
+These metrics are selected because they map directly to operational reliability concerns. A self-healing system must detect failures, understand their type, act safely, and do so with acceptable overhead.
+
+\subsection{Reproducibility Protocol}
+
+The evaluation is designed to be reproducible from the project artifact. The repository includes experiment code, generated figures, tests, configuration files, and documentation. The reproducibility protocol requires that a reviewer or maintainer can regenerate the evaluation outputs using the documented Python environment and figure-generation scripts.
+
+The expected reproduction workflow includes running the test suite, generating experiment outputs, and regenerating figures. The artifact avoids private data and relies on synthetic inputs so that reproduction does not require access to external enterprise systems.
+
+Reproducibility is treated as part of the methodology rather than an afterthought. This is necessary because the framework makes reliability claims that should be inspectable through code, not only through narrative description.
+
+\subsection{Threats to Methodological Validity}
+
+The methodology has several limitations. Synthetic data improves control and reproducibility, but it cannot fully capture the complexity of production data ecosystems. The failure scenarios represent common pipeline disruptions, but they are not exhaustive. The recovery actions are evaluated in a controlled environment and may require additional safeguards before deployment in highly regulated or business-critical systems.
+
+Another limitation is that the methodology emphasizes framework behavior under known injected faults. Real incidents may involve multiple overlapping failures, ambiguous symptoms, or incomplete telemetry. The results should therefore be interpreted as evidence of feasibility and controlled reliability behavior, not as proof that the framework will automatically resolve all production incidents.
+
+Despite these limitations, the methodology provides a structured and reproducible basis for evaluating the core self-healing loop: detection, diagnosis, recovery, and auditability.
