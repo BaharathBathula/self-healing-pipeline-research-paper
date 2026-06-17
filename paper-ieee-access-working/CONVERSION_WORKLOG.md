@@ -85,3 +85,22 @@ Results expansion completed.
 Next action:
 
 Expand the Background and Related Work section.
+
+## Phase 2 Day 5
+
+Expanded the Background and Related Work section.
+
+Actions completed:
+
+- Preserved the previous Background section
+- Expanded related-work positioning across orchestration, data-quality validation, monitoring, AIOps, autonomic computing, production ML technical debt, and policy-governed recovery
+- Added a clearer research gap subsection
+- Compile-tested the working manuscript successfully
+
+Status:
+
+Background and Related Work expansion completed.
+
+Next action:
+
+Expand the Limitations and Threats to Validity section.
