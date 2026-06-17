@@ -1,34 +1,32 @@
 \section{Results}
+\label{sec:results}
 
-\subsection{Experiment Summary}
-
+This section presents the evaluation results for the proposed self-healing data pipeline framework. The results focus on four aspects of the self-healing control loop: detection and classification accuracy, recovery behavior, runtime behavior, and root-cause classification quality. The goal is not only to report whether the framework produced successful outcomes, but also to explain what the observed behavior means for practical data pipeline reliability.
 
 The experimental evaluation produced 780 total trial records spanning injected failures, healthy controls, and boundary-control scenarios. Of these, 690 trials corresponded to injected data-pipeline failure conditions, 60 trials represented healthy-control executions, and 30 trials represented boundary-control conditions. The experiment design therefore evaluates both positive failure cases and non-failure controls rather than measuring the detector only on failure-positive examples.
 
-\begin{table*}[t]
+\begin{table}[t]
 \caption{Artifact availability for reproducibility.}
 \label{tab:artifact-availability}
 \centering
-\scriptsize
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.22\textwidth}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{0.10\textwidth}@{}}
-\toprule
-\textbf{Artifact} & \textbf{Path} & \textbf{Status} \\
-\midrule
-Raw combined results & \path{experiments/raw_results/combined_experiment_results.csv} & Found \\
-Scenario summary & \path{experiments/derived_results/scenario_summary.csv} & Found \\
-Classification confusion matrix & \path{experiments/derived_results/classification_confusion_matrix.csv} & Found \\
+\begin{tabular}{lll}
+\hline
+Artifact & Path & Status \\
+\hline
 Figure 1 PDF & \path{figures/figure_1_accuracy_by_scenario.pdf} & Found \\
 Figure 2 PDF & \path{figures/figure_2_recovery_by_scenario.pdf} & Found \\
 Figure 3 PDF & \path{figures/figure_3_runtime_distribution.pdf} & Found \\
 Figure 4 PDF & \path{figures/figure_4_classification_confusion_matrix.pdf} & Found \\
-\bottomrule
-\end{tabularx}
-\end{table*}
+\hline
+\end{tabular}
+\end{table}
 
+\noindent\textit{Artifact availability:} The repository includes the raw outputs, derived summaries, confusion-matrix data, and publication-ready figures required to reproduce the reported results. Table~\ref{tab:artifact-availability} lists the primary figure artifacts included with the manuscript package.
 
+\subsection{Detection and Classification Accuracy by Scenario}
 
+Figure~\ref{fig:accuracy-by-scenario} summarizes detection and root-cause classification accuracy across injected scenarios. This result is important because a self-healing pipeline cannot safely trigger remediation unless it first identifies that a failure has occurred and assigns the failure to an actionable category.
 
-\noindent\textit{Artifact availability:} The repository includes the raw outputs, derived summaries, confusion-matrix data, and publication-ready figures required to reproduce the reported results; Table~\ref{tab:artifact-availability} lists the corresponding paths.
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/figure_1_accuracy_by_scenario.pdf}
@@ -36,8 +34,14 @@ Figure 4 PDF & \path{figures/figure_4_classification_confusion_matrix.pdf} & Fou
 \label{fig:accuracy-by-scenario}
 \end{figure}
 
+The scenario-level accuracy view provides a more useful reliability signal than a single aggregate score. Aggregate accuracy can hide weak behavior on specific failure types, especially when some scenarios are easier to detect than others. In contrast, scenario-level reporting shows whether the framework behaves consistently across source failures, schema-related failures, data-quality failures, runtime failures, and control cases.
 
-\noindent\textit{Artifact availability:} The repository includes the raw outputs, derived summaries, confusion-matrix data, and publication-ready figures required to reproduce the reported results; Table~\ref{tab:artifact-availability} lists the corresponding paths.
+The result supports two observations. First, the framework is able to convert raw pipeline symptoms into structured failure signals rather than treating all failures as generic execution errors. Second, the evaluation includes healthy and boundary-control executions, which helps test whether the detection logic avoids treating every unusual condition as a failure. This distinction matters in production settings because excessive false alarms can reduce operator trust and lead to alert fatigue.
+
+\subsection{Recovery Outcomes by Scenario}
+
+Figure~\ref{fig:recovery-by-scenario} reports verified recovery outcomes across injected failure scenarios. Recovery is evaluated separately from detection because detecting a failure is not equivalent to safely remediating it.
+
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/figure_2_recovery_by_scenario.pdf}
@@ -45,8 +49,16 @@ Figure 4 PDF & \path{figures/figure_4_classification_confusion_matrix.pdf} & Fou
 \label{fig:recovery-by-scenario}
 \end{figure}
 
+The recovery results show how the framework behaves after a failure has been detected and classified. For recoverable scenarios, the framework attempts an automated response such as retry, fallback handling, quarantine, or controlled continuation. For scenarios where automatic remediation is unsafe or inappropriate, the expected behavior is containment or escalation rather than forced recovery.
 
-\noindent\textit{Artifact availability:} The repository includes the raw outputs, derived summaries, confusion-matrix data, and publication-ready figures required to reproduce the reported results; Table~\ref{tab:artifact-availability} lists the corresponding paths.
+This separation is important for evaluating self-healing systems. A framework that attempts to automatically repair every failure may create downstream data corruption or mask serious upstream defects. The recovery results therefore should be interpreted in terms of safe operational behavior, not simply maximum automation. A contained failure can be a correct outcome when automated recovery would be unsafe.
+
+The recovery-by-scenario view also helps identify where the framework is strongest. Transient or structurally simple failures are typically more amenable to automated recovery, while schema and quality failures may require stricter containment depending on the severity of the violation. This supports a practical design principle: self-healing pipelines should combine automation with policy-aware safeguards.
+
+\subsection{Runtime Behavior}
+
+Figure~\ref{fig:runtime-distribution} presents the runtime distribution for the self-healing cycle. Runtime behavior is included because detection, classification, telemetry, and recovery logic introduce additional processing work. A reliability framework must therefore improve failure handling without imposing unacceptable overhead.
+
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/figure_3_runtime_distribution.pdf}
@@ -54,8 +66,16 @@ Figure 4 PDF & \path{figures/figure_4_classification_confusion_matrix.pdf} & Fou
 \label{fig:runtime-distribution}
 \end{figure}
 
+The runtime distribution provides a local execution profile of the framework under the experimental environment. It should not be interpreted as a universal performance benchmark because runtime depends on machine resources, implementation details, dependency versions, and workload size. However, it is useful for understanding the relative behavior of the self-healing loop.
 
-\noindent\textit{Artifact availability:} The repository includes the raw outputs, derived summaries, confusion-matrix data, and publication-ready figures required to reproduce the reported results; Table~\ref{tab:artifact-availability} lists the corresponding paths.
+The runtime result supports three forms of analysis. First, it shows whether the framework completes within a practical execution envelope for the synthetic workload. Second, it helps identify whether recovery paths are materially slower than normal execution paths. Third, it provides a baseline for future optimization work, especially if the framework is extended to larger datasets, distributed execution engines, or streaming workloads.
+
+In practical deployment, runtime overhead should be evaluated against the cost of manual incident response, delayed detection, and downstream data quality failures. A small amount of additional runtime can be acceptable if it prevents invalid output propagation or reduces manual operational effort.
+
+\subsection{Root-Cause Classification Quality}
+
+Figure~\ref{fig:classification-confusion-matrix} presents the root-cause classification confusion matrix. The confusion matrix is included because classification accuracy alone does not show which failure categories are confused with each other.
+
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/figure_4_classification_confusion_matrix.pdf}
@@ -63,5 +83,12 @@ Figure 4 PDF & \path{figures/figure_4_classification_confusion_matrix.pdf} & Fou
 \label{fig:classification-confusion-matrix}
 \end{figure}
 
+The confusion matrix provides insight into the diagnostic quality of the framework. Correct classification is operationally important because recovery actions depend on the assigned failure category. A source availability issue, schema mismatch, data-quality violation, and runtime failure require different remediation strategies. Misclassification can therefore lead to ineffective or unsafe recovery behavior.
 
+The matrix should be read as evidence of how well the framework separates failure classes under controlled conditions. Strong diagonal behavior indicates that scenario classes are being recognized consistently. Off-diagonal behavior, where present, identifies categories that require better features, stronger rules, or additional telemetry. This makes the confusion matrix useful not only as an evaluation artifact but also as a debugging tool for improving the classifier.
 
+\subsection{Summary of Results}
+
+Taken together, the results demonstrate that the framework implements the core self-healing loop under controlled experimental conditions. The evaluation includes injected failures, healthy controls, and boundary controls; reports scenario-level accuracy; separates recovery behavior from detection behavior; measures runtime distribution; and provides a confusion-matrix view of classification quality.
+
+The results should be interpreted as controlled evidence of feasibility rather than a claim of universal production readiness. The experiments use synthetic data and bounded failure scenarios, which improves reproducibility but limits direct generalization to all production environments. Nevertheless, the results support the central claim that data pipeline reliability can be improved by integrating failure detection, root-cause classification, recovery decisioning, and auditable telemetry into a single framework.

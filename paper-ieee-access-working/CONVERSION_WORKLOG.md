@@ -65,3 +65,23 @@ Experiments expansion completed.
 Next action:
 
 Expand the Results interpretation section.
+
+## Phase 2 Day 4
+
+Expanded the Results section.
+
+Actions completed:
+
+- Preserved the previous Results section
+- Replaced repeated artifact availability text with a single artifact statement
+- Preserved all four result figures and labels
+- Added interpretation for detection/classification accuracy, recovery outcomes, runtime behavior, and root-cause classification quality
+- Compile-tested the working manuscript successfully
+
+Status:
+
+Results expansion completed.
+
+Next action:
+
+Expand the Background and Related Work section.
