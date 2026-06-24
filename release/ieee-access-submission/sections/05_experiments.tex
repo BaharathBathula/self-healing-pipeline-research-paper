@@ -1,0 +1,161 @@
+\section{Experimental Design}
+\label{sec:experiments}
+
+This section describes the experimental design used to evaluate the proposed self-healing data pipeline framework. The experiments are structured to measure whether the framework can detect controlled pipeline failures, classify failure scenarios, trigger appropriate recovery actions, and preserve auditable telemetry during execution. The evaluation is designed as a reproducible systems experiment using synthetic data and deterministic failure scenarios.
+
+\subsection{Experimental Objectives}
+
+The experiments are organized around the operational behavior expected from a self-healing pipeline. A conventional pipeline may fail, alert, and require manual intervention. In contrast, the proposed framework is expected to detect abnormal conditions, diagnose the failure category, select a recovery or containment action, and record the outcome for inspection.
+
+The experimental objectives are:
+
+\begin{itemize}
+    \item Evaluate whether injected pipeline failures are detected reliably.
+    \item Evaluate whether detected failures are classified into the correct scenario category.
+    \item Evaluate whether recoverable failures are remediated or safely contained.
+    \item Evaluate runtime behavior under normal, failed, and recovered execution paths.
+    \item Verify that the evaluation artifacts can be regenerated from the repository.
+\end{itemize}
+
+The experiments are not intended to claim universal production readiness. Instead, they provide controlled evidence that the framework implements the core self-healing loop under repeatable conditions.
+
+\subsection{Experimental Environment}
+
+The experiments are executed in a local research environment using the project implementation, generated input data, failure injection modules, detection and classification logic, recovery components, telemetry outputs, and figure-generation scripts. The workflow is designed to be executable without access to proprietary infrastructure or private datasets.
+
+The experimental environment includes the following components:
+
+\begin{itemize}
+    \item A synthetic data generation workflow for producing baseline pipeline inputs.
+    \item Failure injection modules for introducing controlled pipeline disruptions.
+    \item Detection logic for identifying abnormal source, schema, quality, and runtime behavior.
+    \item Classification logic for assigning detected failures to scenario categories.
+    \item Recovery logic for retry, fallback, quarantine, containment, or unresolved outcomes.
+    \item Telemetry and audit outputs for recording pipeline execution behavior.
+    \item Figure-generation scripts for producing the reported evaluation figures.
+\end{itemize}
+
+This environment supports repeatability because each experiment is defined through code and configuration rather than manual manipulation of data files.
+
+\subsection{Baseline Pipeline Run}
+
+Each experiment begins with a baseline pipeline run. The baseline run uses generated data without injected faults and establishes the expected behavior of the pipeline under normal operating conditions. This baseline is used to confirm that the pipeline can complete successfully before fault scenarios are introduced.
+
+The baseline run serves three purposes. First, it validates the generated input structure. Second, it confirms that the pipeline execution path is valid in the absence of injected failures. Third, it provides a comparison point for runtime behavior and downstream failure effects.
+
+A baseline run is considered valid when the generated input is processed successfully, required quality checks complete, and no recovery action is triggered.
+
+\subsection{Failure Injection Procedure}
+
+Failure injection is performed after the baseline workflow is verified. Each experiment selects a failure scenario and modifies either the pipeline input, source condition, validation state, or runtime path. The injected failure is known to the evaluation harness, which allows the resulting detection, classification, and recovery behavior to be compared against the expected scenario label.
+
+The failure injection procedure follows these steps:
+
+\begin{enumerate}
+    \item Select the target failure scenario.
+    \item Generate or load the baseline input data.
+    \item Apply the failure injection transformation.
+    \item Execute the pipeline with the injected fault.
+    \item Record detection, classification, recovery, and runtime outcomes.
+    \item Repeat the workflow across the configured scenario set.
+\end{enumerate}
+
+This process separates the injected fault from the detection and recovery logic. The framework must infer the failure from observed pipeline behavior rather than from direct access to the injection label.
+
+\subsection{Scenario Categories}
+
+The evaluation uses scenario categories that represent common classes of pipeline failure. These categories are selected because they affect different parts of a production data pipeline and require different remediation strategies.
+
+\begin{itemize}
+    \item \textbf{Normal execution:} the pipeline receives valid generated input and should complete without recovery.
+    \item \textbf{Source failure:} the upstream input is missing, unavailable, delayed, or incomplete.
+    \item \textbf{Schema failure:} expected columns, field types, or structural assumptions are violated.
+    \item \textbf{Data quality failure:} records contain missing, invalid, duplicated, or quality-rule-violating values.
+    \item \textbf{Runtime failure:} execution encounters an operational error during transformation, validation, or processing.
+    \item \textbf{Recoverable transient failure:} the pipeline encounters a temporary disruption that can be retried, bypassed, or safely contained.
+\end{itemize}
+
+The scenario categories are intentionally broad. The purpose is to evaluate the framework-level control loop rather than optimize for one narrowly defined incident type.
+
+\subsection{Experimental Execution Workflow}
+
+For each scenario, the pipeline is executed through the same workflow. The pipeline first loads or generates input data, then applies validation and processing logic. If a failure condition is observed, the detection layer emits a failure signal. The classification layer assigns a failure category. The recovery engine then determines whether an automated action is safe and applicable.
+
+The execution workflow records four outcome groups:
+
+\begin{itemize}
+    \item \textbf{Detection outcome:} whether the injected failure was detected.
+    \item \textbf{Classification outcome:} whether the detected failure was assigned to the expected category.
+    \item \textbf{Recovery outcome:} whether the pipeline recovered, contained the failure, or remained unresolved.
+    \item \textbf{Runtime outcome:} how long the execution required under the scenario.
+\end{itemize}
+
+The same workflow is used for all scenarios so that differences in results are attributable to the scenario behavior rather than inconsistent experiment procedure.
+
+\subsection{Recovery Experiment Design}
+
+Recovery experiments are limited to failures for which automated remediation is safe in the controlled environment. The recovery engine does not attempt to repair every detected condition. Some failures are intentionally classified as requiring containment or escalation rather than automatic correction.
+
+Recovery outcomes are grouped into three categories:
+
+\begin{itemize}
+    \item \textbf{Recovered:} the framework restores execution to a valid terminal state.
+    \item \textbf{Contained:} the framework prevents invalid output propagation through quarantine, fallback handling, or safe stopping.
+    \item \textbf{Unresolved:} the framework detects the issue but cannot safely remediate it automatically.
+\end{itemize}
+
+This design avoids overstating self-healing capability. In practical data engineering environments, unsafe automated remediation can be worse than failure detection alone. Therefore, the experiments reward safe containment where full recovery is not appropriate.
+
+\subsection{Telemetry Collection}
+
+Telemetry is collected during each experimental run. The telemetry records provide an audit trail of what the pipeline observed, what decision was made, and what action was taken. This is important because self-healing systems must be explainable to operators.
+
+The telemetry collection includes:
+
+\begin{itemize}
+    \item Scenario identifier
+    \item Detection status
+    \item Classification result
+    \item Recovery action
+    \item Recovery status
+    \item Runtime measurement
+    \item Error or failure signal, when applicable
+\end{itemize}
+
+These records support both evaluation and debugging. They also provide the basis for generating aggregate figures such as scenario-level accuracy, recovery behavior, runtime distribution, and classification confusion matrix.
+
+\subsection{Figure Generation Workflow}
+
+The reported figures are generated from experiment outputs rather than manually constructed. The figure-generation workflow reads the evaluation artifacts and produces publication-ready visualizations. The main figure categories are:
+
+\begin{itemize}
+    \item Accuracy by scenario
+    \item Recovery by scenario
+    \item Runtime distribution
+    \item Classification confusion matrix
+\end{itemize}
+
+This workflow supports reproducibility because figures can be regenerated when experiment outputs change. It also reduces the risk of mismatch between reported results and underlying artifacts.
+
+\subsection{Validation and Testing}
+
+The experimental workflow is supported by tests that verify core components of the framework. The tests cover data generation, failure injection, detection behavior, classification logic, recovery behavior, telemetry, and figure-generation support. These tests do not replace the experiments, but they provide implementation-level confidence that the evaluation pipeline is operating as intended.
+
+Testing is important for two reasons. First, it helps ensure that experiment failures reflect scenario behavior rather than broken test infrastructure. Second, it supports reproducibility by giving reviewers or maintainers a way to verify the artifact before interpreting reported results.
+
+\subsection{Repetition and Determinism}
+
+The experiments are designed to be deterministic where possible. Synthetic data generation and failure injection are controlled through code so that the same scenario can be reproduced across runs. Runtime measurements may vary by machine, operating system, dependency versions, and local resource availability, so runtime results are interpreted as local execution measurements rather than universal performance guarantees.
+
+The deterministic parts of the experiment are used to evaluate detection, classification, and recovery outcomes. Runtime results are used to understand relative overhead and distributional behavior in the test environment.
+
+\subsection{Experimental Boundaries}
+
+The experiments have deliberate boundaries. They do not claim to simulate every production incident, every enterprise data architecture, or every failure mode. They also do not use private enterprise data or live production systems. These boundaries are necessary to preserve reproducibility, safety, and artifact availability.
+
+The evaluation should therefore be interpreted as a controlled demonstration of the self-healing control loop. The experiments provide evidence that the framework can detect, classify, recover from, and document selected failure scenarios. Additional production validation would be required before deploying the framework in regulated or mission-critical environments.
+
+\subsection{Summary}
+
+The experimental design provides a reproducible evaluation workflow for self-healing data pipeline behavior. By combining synthetic data, controlled failure injection, scenario-level outcomes, recovery tracking, telemetry collection, and figure generation, the experiments evaluate the framework as an integrated reliability mechanism rather than as a collection of isolated components.
+

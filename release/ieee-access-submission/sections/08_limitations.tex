@@ -1,0 +1,99 @@
+\section{Limitations and Threats to Validity}
+\label{sec:limitations}
+
+This section discusses the main limitations of the evaluation and the threats to validity that affect interpretation of the results. The framework is evaluated through controlled experiments using synthetic data, deterministic failure injection, and local execution artifacts. This design improves reproducibility, but it also limits how far the results can be generalized without additional production-scale validation.
+
+\subsection{Synthetic Data Limitation}
+
+The evaluation uses synthetic data rather than private enterprise datasets. This choice supports reproducibility because reviewers can regenerate the data and inspect the complete experiment workflow without access restrictions. It also avoids exposing sensitive operational data. However, synthetic data cannot fully reproduce the complexity of production data systems.
+
+Production datasets often contain undocumented business rules, inconsistent historical conventions, hidden dependencies, delayed upstream feeds, manual corrections, and domain-specific exceptions. These characteristics can affect both failure detection and recovery behavior. A framework that performs well on synthetic data may still require additional feature engineering, policy configuration, and operational tuning before deployment in a real enterprise environment.
+
+Therefore, the results should be interpreted as controlled evidence that the self-healing loop is implemented and testable, not as proof that the framework will perform identically on all real-world data pipelines.
+
+\subsection{Failure Scenario Coverage}
+
+The experiment design evaluates selected categories of pipeline failures, including source failures, schema failures, data-quality failures, runtime failures, healthy-control executions, and boundary-control scenarios. These categories represent common pipeline reliability problems, but they do not exhaust the full space of possible production failures.
+
+Real pipelines may experience compound failures, partial upstream outages, intermittent dependency failures, permission changes, infrastructure degradation, silent data corruption, late-arriving data, backfill conflicts, downstream contract changes, or failures caused by external business processes. Some of these cases may produce signals that overlap across categories. Others may require recovery policies that are specific to an organization or regulatory environment.
+
+The evaluated scenarios are sufficient to test the framework architecture under controlled conditions, but broader scenario coverage is needed before claiming comprehensive production readiness.
+
+\subsection{Controlled Failure Injection}
+
+Failure injection is intentionally controlled. The evaluation knows which scenarios are injected, while the detection and classification components must infer the failure from pipeline behavior. This setup enables repeatable measurement, but it may simplify the unpredictability of real incidents.
+
+In production, failures are often noisy, incomplete, delayed, or masked by retries and partial outputs. A failure may also emerge gradually rather than appearing as a clean injected condition. Controlled injection therefore provides a useful experimental baseline, but it does not fully represent the uncertainty and ambiguity of live operational incidents.
+
+Future work should evaluate the framework against historical incident logs, production-like replay workloads, and mixed-failure traces where the failure boundary is less clean.
+
+\subsection{Local Runtime Environment}
+
+Runtime results are measured in the local research environment used to execute the experiments. These measurements are useful for understanding the behavior of the implementation under the tested workload, but they should not be interpreted as universal performance benchmarks.
+
+Runtime can vary based on machine resources, operating system behavior, Python version, dependency versions, disk performance, logging configuration, and dataset size. A distributed execution environment may show different overhead patterns than a local execution environment. Similarly, streaming pipelines or large-scale batch jobs may require different recovery and telemetry designs.
+
+The runtime results therefore provide local evidence of feasibility, not a final performance characterization for all deployment environments.
+
+\subsection{Recovery Generalizability}
+
+The recovery logic is evaluated under a bounded set of safe recovery actions. The framework can retry, contain, quarantine, fallback, or mark a failure as unresolved depending on the scenario. This design is intentionally conservative because unsafe automated recovery can cause more damage than the original failure.
+
+However, production recovery behavior is highly context-dependent. A retry may be safe in one pipeline and unsafe in another. Quarantine may be appropriate for some datasets but operationally expensive for others. Fallback data may be acceptable for internal analytics but unacceptable for regulated reporting. The framework therefore requires policy configuration before production use.
+
+The evaluation demonstrates that recovery decisions can be integrated into the self-healing loop, but it does not prove that a single recovery policy is appropriate for every organization or pipeline type.
+
+\subsection{Classification Validity}
+
+The classification component assigns detected failures to scenario categories. This supports recovery decisioning, but classification quality depends on the available features, telemetry signals, and scenario definitions. If two failure types produce similar symptoms, the classifier may require additional evidence to distinguish them reliably.
+
+The confusion-matrix analysis helps identify classification behavior under the evaluated scenarios, but it does not eliminate the need for further validation. Real-world failures may involve overlapping causes. For example, a source failure can trigger downstream schema errors, and a schema error can create data-quality violations. In such cases, single-label classification may be insufficient.
+
+Future versions of the framework may require hierarchical, multi-label, or confidence-aware classification to better represent complex incidents.
+
+\subsection{Policy and Governance Boundaries}
+
+The framework treats recovery as a governed action rather than an automatic response to every detected failure. This is necessary because self-healing systems can introduce operational risk if they modify pipeline behavior without appropriate constraints.
+
+The current evaluation demonstrates policy-aware framing, but it does not implement a full enterprise governance model with role-based approval workflows, regulatory controls, audit-retention policies, or organization-specific risk thresholds. In regulated industries, these controls would be necessary before automated remediation could be trusted in production.
+
+The results should therefore be interpreted as evidence for the technical control loop, not as a complete compliance framework.
+
+\subsection{External Validity}
+
+External validity concerns how well the results generalize beyond the tested environment. The evaluated framework is designed around a reproducible research implementation. Production systems may use different orchestrators, storage systems, data contracts, quality tools, observability platforms, and deployment patterns.
+
+The architectural concepts are intended to be portable: detect, classify, decide, recover, and audit. However, the implementation details may need adaptation for specific platforms such as distributed processing engines, cloud-native orchestration systems, event-driven pipelines, or streaming data architectures.
+
+The framework should therefore be viewed as a reference architecture and experimental implementation rather than a plug-and-play replacement for all production reliability tooling.
+
+\subsection{Internal Validity}
+
+Internal validity concerns whether the observed results are caused by the framework behavior rather than by flaws in the experiment. The evaluation reduces internal validity risks by using controlled scenarios, repeatable scripts, preserved artifacts, and compile-tested reporting outputs. The repository also includes tests that support implementation-level confidence.
+
+However, internal validity risks remain. Bugs in the data generator, failure injection logic, detection rules, classification logic, recovery logic, or aggregation scripts could affect reported outcomes. The evaluation artifacts reduce this risk by making the workflow inspectable, but they do not eliminate it completely.
+
+A stronger future evaluation would include independent replication, additional unit and integration tests, mutation-style failure tests, and cross-environment execution.
+
+\subsection{Construct Validity}
+
+Construct validity concerns whether the metrics measure the intended concepts. Detection accuracy, classification behavior, recovery status, runtime distribution, and confusion-matrix analysis are useful indicators of self-healing behavior, but they do not capture every operational concern.
+
+For example, the current evaluation does not directly measure operator workload reduction, incident-resolution time in a live team, business impact avoided, downstream trust improvement, or compliance-review efficiency. These are important operational outcomes, but they require production or field-study evaluation.
+
+The current metrics therefore measure technical feasibility and controlled reliability behavior. They should not be interpreted as complete evidence of organizational impact.
+
+\subsection{Reproducibility Boundaries}
+
+The project provides code, generated artifacts, figures, and manuscript assets to support reproducibility. This improves transparency, but reproducibility still depends on environment setup, dependency installation, operating system behavior, and correct execution of the scripts.
+
+The artifacts support verification of the reported workflow, but they do not guarantee identical runtime measurements across machines. Minor differences in dependency versions or local execution conditions may affect timing results while leaving detection and classification behavior unchanged.
+
+For this reason, runtime should be interpreted as environment-specific, while scenario outcomes and artifact structure provide the stronger reproducibility signal.
+
+\subsection{Summary}
+
+The main limitation of the study is that it evaluates a self-healing pipeline framework under controlled, reproducible conditions rather than through large-scale production deployment. This is an appropriate first step for demonstrating architecture, implementation, and experimental feasibility, but it is not sufficient for universal claims.
+
+The results show that the framework can integrate detection, classification, recovery decisioning, telemetry, and reproducible reporting under the evaluated scenarios. Future work should extend the evaluation to production-like datasets, larger workloads, historical incident traces, multi-label failure diagnosis, distributed execution, streaming pipelines, and enterprise governance controls.
+

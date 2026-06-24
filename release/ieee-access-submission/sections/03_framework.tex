@@ -1,0 +1,175 @@
+\section{Methodology and Experimental Design}
+
+\subsection{Overview}
+
+
+This study evaluates a policy-constrained self-healing control plane for data-pipeline failures. The framework is designed to model self-healing as a sequence of measurable reliability stages rather than as a single automated repair action. Each trial passes through failure injection or control setup, telemetry collection, failure detection, root-cause classification, remediation selection, policy evaluation, remediation execution, post-recovery validation, and evidence preservation.
+
+The experimental goal is to determine whether the proposed framework can detect injected data-pipeline failures, classify their likely root causes, and safely recover when remediation is available, policy-approved, executable, and verifiable. The experiment therefore separates detection performance, diagnostic performance, and recovery performance. This separation is necessary because a pipeline failure can be detected and classified correctly while still requiring escalation if automated recovery is unsafe or unverifiable.
+
+The current evaluation uses a reproducible synthetic data-pipeline environment with controlled failure injection. The experiment includes injected failure trials, healthy-control trials, and boundary-control trials. Injected failure trials test the system under known failure conditions. Healthy controls test whether the system avoids reporting failures when no failure is present. Boundary controls test whether the system behaves conservatively near decision thresholds rather than over-triggering remediation.
+
+\subsection{System Architecture}
+
+
+The proposed system is organized as a reliability-control plane layered above a data-pipeline execution environment. The control plane contains the following stages.
+
+\begin{table}[t]
+\caption{Self-healing control-plane stages.}
+\label{tab:methodology-1}
+\centering
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Stage} & \textbf{Input} & \textbf{Output} & \textbf{Metric or evidence} \\
+\midrule
+Pipeline execution & Synthetic workload configuration & Pipeline output and execution state & Trial record \\
+Failure injection & Scenario and severity configuration & Injected failure or control condition & Trial metadata \\
+Telemetry collection & Pipeline outputs and execution state & Data-quality, structural, freshness, and runtime signals & Raw result fields \\
+Failure detection & Telemetry signals & Failure or non-failure decision & Detection accuracy \\
+Root-cause classification & Detected failure & Predicted root-cause label & Classification accuracy \\
+Remediation selection & Predicted root cause & Candidate remediation action & Remediation action field \\
+Policy evaluation & Candidate remediation & Approved, rejected, or human-approval-required decision & Policy/recovery status fields \\
+Recovery execution & Approved remediation & Execution result & Remediation executed field \\
+Post-recovery validation & Recovered pipeline output & Validated or non-validated recovery outcome & Recovery verified field \\
+Rollback, escalation, and evidence & Trial outcome & Incident record and preserved evidence & Raw and derived artifacts \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+This architecture intentionally prevents the system from treating all detected failures as candidates for automatic repair. A recovery action is considered successful only when it passes policy evaluation and post-recovery validation.
+
+\subsection{Failure Taxonomy}
+
+
+The experiment uses a predefined data-pipeline failure taxonomy. The taxonomy is based on common reliability problems in data pipelines where task-level success does not necessarily imply data correctness.
+
+\begin{table}[t]
+\caption{Failure taxonomy used in the controlled experiment.}
+\label{tab:methodology-2}
+\centering
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Failure category} & \textbf{Description} & \textbf{Expected system behavior} \\
+\midrule
+Schema drift & Input schema differs from expected structure & Detect structural mismatch, classify schema drift, remediate only if policy permits \\
+Missing-value spike & Null or missing values exceed expected threshold & Detect quality degradation, classify missing-value issue, validate recovered output \\
+Duplicate-record generation & Duplicate records appear above expected tolerance & Detect duplicate spike, classify duplicate failure, remediate or escalate \\
+Data-freshness violation & Data is stale or late relative to expected timing & Detect freshness issue, classify freshness violation, recover or escalate \\
+Unexpected volume change & Row count or volume deviates from expected range & Detect abnormal volume, classify volume anomaly \\
+Transformation-logic failure & Transformation produces invalid or inconsistent outputs & Detect downstream invalid state, classify transformation failure \\
+Source-system failure & Upstream source is unavailable or returns invalid data & Detect source-related failure, classify source-system issue, escalate if unsafe \\
+Partial or corrupted output & Output is incomplete or malformed & Detect output corruption, classify corruption or partial output \\
+Unknown failure & Failure does not map cleanly to supported classes & Detect abnormal state where possible, avoid unsafe recovery, escalate \\
+Healthy control & No failure is injected & Avoid false-positive detection \\
+Boundary control & Near-threshold or ambiguous condition & Avoid aggressive remediation unless confidence and policy allow it \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+The taxonomy supports deterministic evaluation because each injected trial has a known expected failure category. However, this also limits external validity. Real production failures may be overlapping, delayed, partially observable, or semantically ambiguous.
+
+\subsection{Trial Design}
+
+
+Each experiment trial represents one pipeline execution under a defined scenario. A scenario is defined by the experiment domain, injected failure type, severity or control condition, and expected outcome. The trial-level record preserves the injected condition, observed detection outcome, predicted root cause, recovery decision, policy decision, validation result, and runtime information.
+
+The current experiment contains 780 total trials.
+
+\begin{table}[t]
+\caption{Evaluation metrics used in the experiment.}
+\label{tab:methodology-3}
+\centering
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Trial type} & \textbf{Count} \\
+\midrule
+Injected failure trials & 690 \\
+Healthy-control trials & 60 \\
+Boundary-control trials & 30 \\
+Total trials & 780 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+Injected failure trials are used to evaluate detection, root-cause classification, and verified recovery. Healthy controls are used to evaluate whether the framework avoids false alarms when no failure is present. Boundary controls are used to evaluate whether the framework behaves conservatively under near-threshold or ambiguous conditions.
+
+The experiment domains represented in the preserved trial records are \texttt{artifact} and \texttt{dataframe}. These domains represent evaluated implementation contexts, not alert-only or static-rule baseline comparisons. Although the broader research objective supports comparison with alert-only and static-rule approaches, the current manuscript reports only experiment domains represented in the preserved trial records. Full baseline comparison remains future work unless comparable baseline trials are added under identical failure scenarios and metrics.
+
+\subsection{Experimental Procedure}
+
+
+Each trial follows a consistent procedure. The trial is first assigned an experiment domain, failure type or control condition, severity level, and expected outcome. A synthetic data-pipeline workload is then executed using the trial configuration. For injected failure trials, a controlled fault is introduced. For healthy-control trials, no fault is injected. For boundary-control trials, the input is configured near a decision threshold.
+
+The framework records execution state, data-quality signals, structural signals, volume and freshness indicators, and derived validation outputs. The detection layer determines whether the trial represents a failure condition. If a failure is detected, the classifier assigns the expected root-cause category. The system then checks whether a remediation action exists for the classified failure type. If a candidate remediation exists, the policy layer approves or rejects the proposed action based on predefined safety and governance constraints.
+
+If the remediation is available and policy-approved, the recovery-execution layer performs the remediation. The system then validates whether the post-recovery output satisfies expected correctness and health conditions. A recovery is counted as verified only if the remediation was approved, executed, and validated. The trial record is preserved for downstream analysis, figure generation, and reproducibility.
+
+\subsection{Metrics}
+
+
+The experiment reports separate metrics for detection, classification, recovery, and runtime. The metrics are separated because they answer different reliability questions.
+
+\textbf{Detection accuracy} measures whether the framework correctly identifies the presence or absence of a failure condition.
+
+```text
+Detection Accuracy = Correct Detection Decisions / Total Detection Decisions
+```
+
+For injected failure trials, detection is successful when the system marks the trial as failed. For healthy-control trials, detection is successful when the system does not mark the trial as failed. For boundary controls, detection behavior is interpreted based on the expected boundary outcome defined by the trial configuration.
+
+\textbf{Root-cause classification accuracy} measures whether the predicted root-cause category matches the injected failure category.
+
+```text
+Classification Accuracy = Correct Root-Cause Predictions / Classified Injected Failure Trials
+```
+
+\textbf{Verified recovery rate} measures the percentage of injected failure trials that are safely recovered.
+
+```text
+Verified Recovery Rate = Verified Recoveries / Injected Failure Trials
+```
+
+A trial is counted as a verified recovery only if all of the following are true: the failure is detected, the root cause is classified, a remediation action is available, the remediation is policy-approved, the remediation executes successfully, and post-recovery validation passes.
+
+\textbf{Runtime} measures the operational cost of the self-healing cycle. Runtime is tracked separately from accuracy and recovery because a system can be accurate but operationally impractical if the detection-to-validation cycle is too slow.
+
+\subsection{Recovery Success Definition}
+
+
+The paper uses a strict recovery success definition. Recovery is successful only when the system restores the pipeline to a validated healthy state after an approved remediation.
+
+The following are not counted as successful recovery: detecting a failure without remediation, classifying a root cause without remediation, selecting a remediation that policy rejects, executing a remediation without post-recovery validation, executing a remediation that validation fails, escalating a failure to a human operator, rolling back an unsafe remediation, or suppressing an alert or bypassing validation.
+
+This definition prevents the experiment from overstating self-healing performance. It also makes the verified recovery rate more credible than a larger but weaker automation-attempt rate.
+
+\subsection{Reproducibility Artifacts}
+
+
+The repository is organized to support reproducibility. The experiment artifacts include implementation code, experiment configurations, raw trial records, derived result summaries, policies, remediation registry artifacts, telemetry records, incident evidence, scripts, figures, and documentation.
+
+The figure-generation workflow uses three primary derived inputs: combined raw experiment results, scenario-level summaries, and a classification confusion matrix. The generated publication figures include detection and root-cause classification accuracy by scenario, verified recovery outcomes by failure scenario, self-healing cycle runtime distribution, and root-cause classification confusion matrix.
+
+The analysis is intended to remain reproducible from preserved trial-level results. Final claims should be traceable to raw or derived experiment outputs.
+
+\subsection{Assumptions and Scope}
+
+
+The current methodology depends on several assumptions. The synthetic failure taxonomy is assumed to represent meaningful data-pipeline failure classes. Injected failures are assumed to produce observable signals that the detector can evaluate. Expected root-cause labels are known for injected failure trials. Recovery actions are available only for a subset of failure types. Policy constraints may intentionally block remediation. Post-recovery validation is required before recovery is counted as successful.
+
+The scope is intentionally limited. The current experiment does not prove that the framework will achieve the same detection, classification, or recovery performance on real enterprise incidents. It demonstrates feasibility and reproducibility under controlled synthetic conditions.
+
+\subsection{Implementation Summary}
+
+
+The current implementation represents the self-healing lifecycle as a deterministic experimental control plane. Trial configurations define the experiment domain, random seed, injected failure type, severity, and expected root cause. Pipeline execution produces observed records and artifact metadata, including input and output record counts, quarantined record counts, size observations, checksum status, and runtime measurements.
+
+Failure detection is evaluated through trial-level detection outcomes rather than through an unconstrained production anomaly detector. Root-cause classification maps detected failures to the predefined taxonomy and records whether the predicted root cause matches the injected condition. Remediation is represented through a registry-style action field, execution status, human-approval flag, cycle status, and post-recovery verification outcome. Policy constraints are reflected in whether a remediation is allowed, whether human approval is required, whether the remediation is executed, and whether recovery is verified after execution.
+
+This implementation is intentionally conservative. It is designed to test whether the staged evaluation model is reproducible and measurable, not to prove that the current detector or classifier generalizes to arbitrary production incidents. Future implementations can replace deterministic detection and taxonomy-based classification with probabilistic, learning-based, or hybrid methods while preserving the same evaluation structure.
+
