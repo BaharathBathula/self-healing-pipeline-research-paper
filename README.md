@@ -80,6 +80,84 @@ Exact preserved copies of the trial-level and derived result files are located a
 
 ```text
 reproducibility/reference-results/2026-06-14/
+```
+
+That directory contains:
+
+- `combined_experiment_results.csv`
+- `scenario_summary.csv`
+- `classification_confusion_matrix.csv`
+- `SHA256_MANIFEST.txt`
+- an evidence-status README
+
+Generated experiment directories remain excluded by default so experiments may be rerun without silently modifying the preserved reference-results package.
+
+## Reproducibility Position
+
+The repository includes:
+
+- a Dockerfile;
+- dependency specifications;
+- versioned source code;
+- experiment runners;
+- analysis scripts;
+- test files;
+- policy configurations;
+- remediation definitions; and
+- preserved reference results.
+
+Independent reproduction has not yet been completed. External evaluators must execute the framework in their own environment and report their results separately.
+
+## Project Structure
+
+```text
+implementation/
+├── src/
+├── tests/
+├── data/
+├── experiments/
+├── policies/
+├── remediation_registry/
+├── telemetry/
+├── incident_evidence/
+├── scripts/
+├── figures/
+├── manuscript/
+├── paper-ieee-access-working/
+├── reproducibility/
+└── docs/
+```
+
+## Relationship to the Showcase Repository
+
+The separate repository:
+
+```text
+BaharathBathula/self-healing-data-pipeline-framework
+```
+
+is a conceptual and presentation-oriented prototype.
+
+It is not the canonical implementation used to generate the research-paper results. The source code, experiment history, reference results, and manuscript evidence for the controlled study are maintained in this repository.
+
+## Evidence Limitations
+
+- The current evaluation uses synthetic data and controlled failure injection.
+- No production-deployment claim is made.
+- No customer-result claim is made.
+- No broad-industry-adoption claim is made.
+- The results have not yet been independently replicated.
+- Originality and comparative significance remain subject to prior-art analysis and independent expert evaluation.
+- Negative findings, unsupported scenarios, and limitations must remain preserved.
+
+## Research Integrity
+
+- Raw and derived results must remain traceable to versioned artifacts.
+- Synthetic findings must always be identified as synthetic.
+- Attempted remediation must not be reported as verified recovery.
+- Unsuccessful trials must not be removed merely because they weaken a claim.
+- Any excluded trial must have a documented technical reason.
+- Future corrections must be made transparently through Git commits.
 
 ## Current Status
 
