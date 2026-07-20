@@ -1,74 +1,82 @@
-# Policy-Constrained Self-Healing Data Pipeline Research
+# Reliability-Aware Self-Healing Data Pipeline Framework
 
-This repository contains the implementation, experiments, datasets, policies, and reproducibility artifacts for the research paper:
+## Canonical Research Implementation
+
+This repository is the canonical implementation, experiment, and reproducibility repository for:
 
 **Reliability-Aware Self-Healing Data Pipelines: Automated Failure Detection, Root-Cause Classification, and Policy-Constrained Recovery**
 
-## Research Objective
+It contains the source code, controlled synthetic experiments, policies, remediation registry, analysis scripts, figures, manuscript materials, and preserved author-generated reference results associated with the research.
 
-The project evaluates whether a policy-constrained self-healing control plane can improve data-pipeline failure detection and recovery while reducing unsafe remediation compared with:
+## Research Scope
 
-1. Alert-only monitoring with operator-executed recovery
-2. Static rule-based automated recovery
-3. Policy-constrained self-healing recovery
+The framework evaluates a policy-constrained reliability-control process for data pipelines consisting of:
 
-## Core Capabilities
+1. telemetry collection;
+2. failure detection;
+3. root-cause classification;
+4. remediation selection;
+5. policy authorization;
+6. remediation execution;
+7. post-recovery validation;
+8. rollback or human escalation; and
+9. incident-evidence preservation.
 
-* Synthetic data-pipeline execution
-* Controlled failure injection
-* Multi-signal failure detection
-* Root-cause classification
-* Policy-based remediation approval
-* Automated recovery execution
-* Post-recovery validation
-* Rollback and human escalation
-* Immutable incident evidence
-* Reproducible experiment analysis
+A remediation attempt is not classified as verified recovery merely because an action was selected or executed. Recovery must also satisfy the configured policy and pass post-recovery validation.
 
-## Planned Failure Categories
+## Implemented Capabilities
 
-* Schema drift
-* Missing-value spike
-* Duplicate-record generation
-* Data-freshness violation
-* Unexpected volume change
-* Transformation-logic failure
-* Source-system failure
-* Partial or corrupted output
-* Unknown failure
-* Healthy control runs
+- Reproducible synthetic dataset generation
+- Controlled failure injection
+- Multi-signal failure detection
+- Evidence-weighted root-cause classification
+- Policy-constrained remediation evaluation
+- Remediation execution
+- Post-recovery validation
+- Rollback and human-escalation paths
+- Incident-evidence generation
+- Statistical experiment analysis
+- Figure and table generation
+- Claim-to-artifact traceability
 
-## Project Structure
+## Evaluated Scenario Categories
+
+The controlled synthetic evaluation includes:
+
+- healthy controls;
+- schema drift;
+- missing-value spikes;
+- duplicate-record generation;
+- freshness violations;
+- unexpected volume changes;
+- transformation-logic failures;
+- source-system failures;
+- partial-output conditions;
+- output-artifact corruption;
+- unsupported or unknown failures; and
+- low-severity boundary controls.
+
+## Author-Generated Experimental Results
+
+The preserved controlled synthetic evaluation contains 780 unique trials:
+
+- 690 actual injected-failure trials;
+- 60 healthy controls; and
+- 30 low-severity freshness boundary controls.
+
+Within this specific controlled configuration:
+
+- failure detection: 690 of 690 actual failure trials;
+- root-cause classification: 690 of 690 actual failure trials;
+- false positives: 0 of 90 healthy and boundary-control trials;
+- verified recovery: 360 of 690 actual failure trials; and
+- verified-recovery rate: 52.17%.
+
+These results are author-generated. They do not establish equivalent production performance, commercial deployment, customer outcomes, broad adoption, or field-level significance.
+
+## Versioned Reference Results
+
+Exact preserved copies of the trial-level and derived result files are located at:
 
 ```text
-implementation/
-├── src/
-├── tests/
-├── data/
-│   ├── raw/
-│   ├── processed/
-│   └── fixtures/
-├── experiments/
-│   ├── configs/
-│   ├── raw_results/
-│   ├── derived_results/
-│   └── experiment_schema.json
-├── policies/
-├── remediation_registry/
-├── telemetry/
-├── incident_evidence/
-├── notebooks/
-├── scripts/
-├── figures/
-└── docs/
-```
-
-## Research Integrity
-
-All final experimental results will be generated from preserved raw trial records.
-
-Unsuccessful trials will not be removed solely because they weaken the research hypotheses. Any excluded trial must include a documented technical reason.
-
-## Status
-
-Research design completed. Implementation in progress.
+reproducibility/reference-results/2026-06-14/
