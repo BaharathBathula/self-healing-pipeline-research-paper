@@ -1,0 +1,10 @@
+expected_root_cause,duplicate_generation,freshness_violation,healthy_control,missing_value_spike,output_artifact_corruption,schema_drift,source_failure,transformation_logic_error,volume_anomaly
+duplicate_generation,90,0,0,0,0,0,0,0,0
+freshness_violation,0,60,0,0,0,0,0,0,0
+healthy_control,0,0,90,0,0,0,0,0,0
+missing_value_spike,0,0,0,90,0,0,0,0,0
+output_artifact_corruption,0,0,0,0,90,0,0,0,0
+schema_drift,0,0,0,0,0,90,0,0,0
+source_failure,0,0,0,0,0,0,90,0,0
+transformation_logic_error,0,0,0,0,0,0,0,90,0
+volume_anomaly,0,0,0,0,0,0,0,0,90
