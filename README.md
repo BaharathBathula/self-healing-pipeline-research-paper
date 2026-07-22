@@ -165,6 +165,88 @@ Author-generated implementation and controlled synthetic evaluation completed.
 
 Independent replication, external operational validation, and prior-art evaluation are pending.
 
+## Independent Replication Quick Start
+
+A dedicated external-evaluator procedure is available at:
+
+```text
+docs/independent-replication-guide.md
+```
+
+The historical controlled experiment must be evaluated from source commit:
+
+```text
+e6052e25b4579ef6698b73c1d7c64b50d547e212
+```
+
+Recommended environment:
+
+- Python 3.12.2
+- dependencies from `requirements-lock.txt`
+- dependency-lock SHA-256:
+  `6C7C3B4E5C644EEF0DFE7FB42333D52AC97E706BC83E3065D00E0B4C2F30670A`
+
+From a detached checkout of the historical source commit, an evaluator should
+create an isolated environment, install the locked dependencies, and explicitly
+place the repository root on `PYTHONPATH`:
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements-lock.txt
+$env:PYTHONPATH = (Get-Location).Path
+```
+
+Run the automated tests:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+```
+
+Run the controlled experiment:
+
+```powershell
+.\.venv\Scripts\python.exe `
+    scripts\run_experiments.py `
+    --row-count 10000 `
+    --repetitions 30 `
+    --initial-seed 42 `
+    --artifact-size-bytes 4096 `
+    --output-directory <EVALUATOR_OUTPUT_DIRECTORY> `
+    --artifact-directory <EVALUATOR_ARTIFACT_DIRECTORY>
+```
+
+Expected trial population:
+
+- 660 dataframe trials;
+- 120 artifact trials;
+- 780 combined trials; and
+- 780 unique trial identifiers.
+
+Preserved reference combined CSV SHA-256:
+
+```text
+ACFD05D8F3CD0DA5A63274ABBA94C58101454A8DE891E52E127124C34D2AFB4A
+```
+
+Use:
+
+```text
+scripts/compare_reproduction_results.py
+```
+
+to compare an evaluator-generated combined CSV against the preserved reference.
+The utility excludes only `runtime_milliseconds` from deterministic equality.
+
+External evidence must be stored separately under:
+
+```text
+reproducibility/independent-replication/
+```
+
+A rerun must not be described as independent unless the external evaluator
+performed it without author control and documented identity, environment,
+commands, results, hashes, deviations, failures, and negative findings.
+
 ## Author
 
 **Baharath Bathula**
